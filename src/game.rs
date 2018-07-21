@@ -13,7 +13,7 @@ pub struct Game {
 impl Game {
     pub fn new() -> Self {
         Game {
-            tetro: Tetromino::I,
+            tetro: Tetromino::T,
             tetro_dir: Dir::Up,
             piece_pos: Coord(2, 0),
             field: Field::new(16, 24),

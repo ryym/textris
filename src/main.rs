@@ -6,7 +6,7 @@ use std::thread;
 use std::time::Duration;
 use termion::async_stdin;
 use termion::raw::IntoRawMode;
-use textris::game::Game;
+use textris::game::{Game, Dir};
 
 fn main() {
     let stdout = stdout();
@@ -26,7 +26,13 @@ fn main() {
     let mut t = 0;
     loop {
         match stdin.next() {
-            Some(Ok(b'q')) => break,
+            Some(Ok(key)) => match key {
+                b'q' => break,
+                b'h' => game.slide_piece(Dir::Left),
+                b'l' => game.slide_piece(Dir::Right),
+                b'j' => game.slide_piece(Dir::Down),
+                _ => {}
+            },
             _ => {}
         }
 

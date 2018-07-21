@@ -2,6 +2,22 @@ use coord::Coord;
 use field::Field;
 use piece::{Block, Piece};
 
+pub enum Dir {
+    Left,
+    Right,
+    Down,
+}
+
+impl Dir {
+    pub fn to_coord(&self) -> Coord {
+        match self {
+            Dir::Left => Coord(-1, 0),
+            Dir::Right => Coord(1, 0),
+            Dir::Down => Coord(0, 1),
+        }
+    }
+}
+
 pub struct Game {
     piece: Piece,
     piece_pos: Coord,
@@ -17,7 +33,7 @@ impl Game {
         Game {
             piece,
             piece_pos: Coord(2, 0),
-            field: Field::new(8, 16),
+            field: Field::new(16, 24),
         }
     }
 
@@ -25,13 +41,17 @@ impl Game {
         &self.field
     }
 
+    pub fn slide_piece(&mut self, dir: Dir) {
+        let _ = self.try_move_piece(dir);
+    }
+
     pub fn tick(&mut self) {
-        self.try_move_piece().unwrap();
+        self.try_move_piece(Dir::Down).unwrap();
         // Delete no-gap lines.
     }
 
-    fn try_move_piece(&mut self) -> Result<(), ()> {
-        let new_pos = self.piece_pos + Coord(0, 1);
+    fn try_move_piece(&mut self, dir: Dir) -> Result<(), ()> {
+        let new_pos = self.piece_pos + dir.to_coord();
         let coords = self.piece.coords(new_pos);
         if !coords.iter().all(|c| self.field.is_in_range(*c)) {
             return Err(());

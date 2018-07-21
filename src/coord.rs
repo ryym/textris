@@ -28,10 +28,29 @@ pub enum Dir {
 impl Dir {
     pub fn to_coord(&self) -> Coord {
         match self {
-            Dir::Left => Coord(-1, 0),
+            Dir::Up => Coord(0, -1),
             Dir::Right => Coord(1, 0),
             Dir::Down => Coord(0, 1),
-            Dir::Up => Coord(0, -1),
+            Dir::Left => Coord(-1, 0),
+        }
+    }
+
+    pub fn next_dir(&self, clockwise: bool) -> Dir {
+        let dir = match self {
+            Dir::Up => Dir::Right,
+            Dir::Right => Dir::Down,
+            Dir::Down => Dir::Left,
+            Dir::Left => Dir::Up,
+        };
+        if clockwise { dir } else { dir.opponent() }
+    }
+
+    pub fn opponent(&self) -> Dir {
+        match self {
+            Dir::Up => Dir::Down,
+            Dir::Right => Dir::Left,
+            Dir::Down => Dir::Up,
+            Dir::Left => Dir::Right,
         }
     }
 }

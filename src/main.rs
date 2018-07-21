@@ -32,6 +32,8 @@ fn main() {
                 b'h' => game.slide_piece(Dir::Left),
                 b'l' => game.slide_piece(Dir::Right),
                 b'j' => game.slide_piece(Dir::Down),
+                b'd' => game.rotate_piece(false),
+                b'f' => game.rotate_piece(true),
                 _ => {}
             },
             _ => {}

@@ -45,6 +45,16 @@ fn main() {
                 Ok(_) => {}
                 Err(_) => {
                     render_game_over(&mut stdout);
+                    stdout.flush().unwrap();
+
+                    // Wait any key inputs before exiting.
+                    loop {
+                        match stdin.next() {
+                            Some(_) => break,
+                            _ => {}
+                        }
+                        thread::sleep(interval);
+                    }
                     break;
                 }
             }
@@ -55,17 +65,6 @@ fn main() {
 
         thread::sleep(interval);
         t += 1;
-    }
-
-    stdout.flush().unwrap();
-
-    // Wait any key inputs before exiting.
-    loop {
-        match stdin.next() {
-            Some(_) => break,
-            _ => {}
-        }
-        thread::sleep(interval);
     }
 
     write!(stdout, "{}", termion::cursor::Show).unwrap();

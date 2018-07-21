@@ -18,7 +18,7 @@ impl Game {
             tetro_dir: Dir::Up,
             tetro_stopped: false,
             piece_pos: Coord(2, 0),
-            field: Field::new(16, 24),
+            field: Field::new(16, 16),
         }
     }
 
@@ -39,13 +39,19 @@ impl Game {
     }
 
     pub fn rotate_piece(&mut self, clockwise: bool) {
-        let coords = self.make_piece().coords(self.piece_pos);
-        self.clear_blocks(&coords);
+        let current_coords = self.make_piece().coords(self.piece_pos);
+        self.clear_blocks(&current_coords);
 
-        self.tetro_dir = self.tetro_dir.next_dir(clockwise);
-        let piece = self.make_piece();
-        let new_coords = piece.coords(self.piece_pos);
-        self.render_blocks(piece.block(), &new_coords);
+        let dir = self.tetro_dir.next_dir(clockwise);
+        let piece = self.tetro.make_piece(dir);
+        let coords = piece.coords(self.piece_pos);
+
+        if self.is_movable(&coords) {
+            self.tetro_dir = dir;
+            self.render_blocks(piece.block(), &coords);
+        } else {
+            self.render_blocks(piece.block(), &current_coords);
+        }
     }
 
     pub fn tick(&mut self) {
@@ -71,18 +77,20 @@ impl Game {
 
     fn move_piece(&mut self, dir: Dir) -> Result<(), ()> {
         let piece = self.make_piece();
-        let new_pos = self.piece_pos + dir.to_coord();
-        let coords = piece.coords(new_pos);
-        if !coords.iter().all(|c| self.field.is_in_range(*c)) {
-            return Err(());
-        }
-
         let current_coords = piece.coords(self.piece_pos);
         self.clear_blocks(&current_coords);
-        self.render_blocks(piece.block(), &coords);
-        self.piece_pos = new_pos;
 
-        Ok(())
+        let new_pos = self.piece_pos + dir.to_coord();
+        let coords = piece.coords(new_pos);
+
+        if self.is_movable(&coords) {
+            self.render_blocks(piece.block(), &coords);
+            self.piece_pos = new_pos;
+            Ok(())
+        } else {
+            self.render_blocks(piece.block(), &current_coords);
+            Err(())
+        }
     }
 
     fn clear_blocks(&mut self, coords: &[Coord]) {
@@ -95,5 +103,11 @@ impl Game {
         for pos in coords {
             self.field[*pos] = Some(block);
         }
+    }
+
+    fn is_movable(&self, coords: &[Coord]) -> bool {
+        coords.iter().all(|&c| {
+            self.field.is_in_range(c) && self.field[c].is_none()
+        })
     }
 }

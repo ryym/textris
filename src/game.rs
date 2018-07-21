@@ -32,6 +32,23 @@ impl Game {
         &self.field
     }
 
+    pub fn tick(&mut self) {
+        if self.tetro_stopped {
+            self.tetro_stopped = false;
+            return;
+        }
+
+        match self.move_piece(Dir::Down) {
+            Ok(_) => return,
+            Err(_) => {
+                self.drop_tetro(Tetromino::T);
+                self.tetro_stopped = true;
+            }
+        }
+
+        // Delete no-gap lines.
+    }
+
     pub fn slide_piece(&mut self, dir: Dir) {
         if dir != Dir::Up {
             let _ = self.move_piece(dir);
@@ -52,23 +69,6 @@ impl Game {
         } else {
             self.render_blocks(piece.block(), &current_coords);
         }
-    }
-
-    pub fn tick(&mut self) {
-        if self.tetro_stopped {
-            self.tetro_stopped = false;
-            return;
-        }
-
-        match self.move_piece(Dir::Down) {
-            Ok(_) => return,
-            Err(_) => {
-                self.drop_tetro(Tetromino::T);
-                self.tetro_stopped = true;
-            }
-        }
-
-        // Delete no-gap lines.
     }
 
     fn make_piece(&self) -> Piece {

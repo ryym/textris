@@ -42,7 +42,11 @@ impl Dir {
             Dir::Down => Dir::Left,
             Dir::Left => Dir::Up,
         };
-        if clockwise { dir } else { dir.opponent() }
+        if clockwise {
+            dir
+        } else {
+            dir.opponent()
+        }
     }
 
     pub fn opponent(&self) -> Dir {

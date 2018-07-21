@@ -19,9 +19,7 @@ fn make_line(width: usize) -> Line {
 
 impl Field {
     pub fn new(width: usize, height: usize) -> Self {
-        let cells = (0..height)
-            .map(|_| make_line(width))
-            .collect();
+        let cells = (0..height).map(|_| make_line(width)).collect();
         Field {
             cells,
             width,
@@ -36,7 +34,9 @@ impl Field {
     }
 
     pub fn is_movable(&self, coords: &[Coord]) -> bool {
-        coords.iter().all(|&c| self.is_in_range(c) && self[c].is_none())
+        coords
+            .iter()
+            .all(|&c| self.is_in_range(c) && self[c].is_none())
     }
 
     pub fn is_reached(&self) -> bool {

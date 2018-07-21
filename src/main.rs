@@ -42,7 +42,7 @@ fn main() {
 
         if t % 20 == 0 {
             match game.tick() {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(_) => {
                     render_game_over(&mut stdout);
                     break;
@@ -63,7 +63,7 @@ fn main() {
     loop {
         match stdin.next() {
             Some(_) => break,
-            _ => {},
+            _ => {}
         }
         thread::sleep(interval);
     }

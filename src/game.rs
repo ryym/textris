@@ -1,6 +1,6 @@
 use coord::{Coord, Dir};
-use piece::{Block, Piece};
 use field::Field;
+use piece::{Block, Piece};
 use tetromino::Tetromino;
 
 pub struct Game {
@@ -39,7 +39,7 @@ impl Game {
         }
 
         match self.move_piece(Dir::Down) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(_) => {
                 self.drop_tetro(Tetromino::T);
                 self.tetro_stopped = true;
@@ -98,7 +98,8 @@ impl Game {
     }
 
     fn delete_completed_lines(&mut self) {
-        let targets: Vec<usize> = self.field.lines_iter()
+        let targets: Vec<usize> = self.field
+            .lines_iter()
             .enumerate()
             .filter(|(_i, line)| line.iter().all(|cell| cell.is_some()))
             .map(|(i, _line)| i)

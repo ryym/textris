@@ -1,12 +1,20 @@
 use coord::{Coord, Dir};
 use piece::Piece;
 
+pub type Tetrominos = [Tetromino; 2];
+
+#[derive(Clone, Copy)]
 pub enum Tetromino {
     I,
     T,
 }
 
 impl Tetromino {
+    pub fn all() -> Tetrominos {
+        use self::Tetromino::*;
+        [I, T]
+    }
+
     pub fn make_piece(&self, dir: Dir) -> Piece {
         use coord::Dir::*;
 

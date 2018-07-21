@@ -17,6 +17,8 @@ impl AddAssign for Coord {
     }
 }
 
+pub type Dirs = [Dir; 4];
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Dir {
     Up,
@@ -26,6 +28,10 @@ pub enum Dir {
 }
 
 impl Dir {
+    pub fn all() -> Dirs {
+        [Dir::Up, Dir::Right, Dir::Down, Dir::Left]
+    }
+
     pub fn to_coord(&self) -> Coord {
         match self {
             Dir::Up => Coord(0, -1),

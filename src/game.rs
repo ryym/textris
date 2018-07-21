@@ -1,9 +1,13 @@
-use coord::{Coord, Dir};
+use coord::{Coord, Dir, Dirs};
 use field::Field;
 use piece::Piece;
-use tetromino::Tetromino;
+use rand::{thread_rng, Rng, ThreadRng};
+use tetromino::{Tetromino, Tetrominos};
 
 pub struct Game {
+    rng: ThreadRng,
+    tetros: Tetrominos,
+    dirs: Dirs,
     tetro: Tetromino,
     tetro_dir: Dir,
     tetro_stopped: bool,
@@ -13,19 +17,40 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Self {
+        let mut rng = thread_rng();
+        let tetros = Tetromino::all();
+        let dirs = Dir::all();
+        let tetro = *rng.choose(&tetros).unwrap();
+        let tetro_dir = *rng.choose(&dirs).unwrap();
+        let piece_pos = Coord(rng.gen_range(0, 16), 0);
         Game {
-            tetro: Tetromino::T,
-            tetro_dir: Dir::Up,
+            rng,
+            tetros,
+            dirs,
+            tetro,
+            tetro_dir,
             tetro_stopped: false,
-            piece_pos: Coord(2, 0),
+            piece_pos,
             field: Field::new(16, 16),
         }
     }
 
-    fn drop_tetro(&mut self, tetro: Tetromino) {
-        self.tetro = tetro;
-        self.tetro_dir = Dir::Up;
-        self.piece_pos = Coord(2, 0);
+    fn random_tetro(&mut self) -> Tetromino {
+        *self.rng.choose(&self.tetros).unwrap()
+    }
+
+    fn random_tetro_dir(&mut self) -> Dir {
+        *self.rng.choose(&self.dirs).unwrap()
+    }
+
+    fn random_piece_pos(&mut self) -> Coord {
+        Coord(self.rng.gen_range(0, self.field.width() as i8), 0)
+    }
+
+    fn drop_tetro(&mut self) {
+        self.tetro = self.random_tetro();
+        self.tetro_dir = self.random_tetro_dir();
+        self.piece_pos = self.random_piece_pos();
     }
 
     pub fn field(&self) -> &Field {
@@ -41,7 +66,7 @@ impl Game {
         match self.move_piece(Dir::Down) {
             Ok(_) => {}
             Err(_) => {
-                self.drop_tetro(Tetromino::T);
+                self.drop_tetro();
                 self.tetro_stopped = true;
                 self.delete_completed_lines();
 

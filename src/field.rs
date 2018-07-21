@@ -27,6 +27,14 @@ impl Field {
         }
     }
 
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn height(&self) -> usize {
+        self.height
+    }
+
     pub fn is_in_range(&self, pos: Coord) -> bool {
         let w = self.width as i8;
         let h = self.height as i8;

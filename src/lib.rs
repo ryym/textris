@@ -1,3 +1,5 @@
+extern crate rand;
+
 pub mod coord;
 mod field;
 pub mod game;

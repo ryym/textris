@@ -1,7 +1,8 @@
 [package]
+authors = ["ryym <ryym.64@gmail.com>"]
 name = "textris"
 version = "0.1.0"
-authors = ["ryym <ryym.64@gmail.com>"]
 
 [dependencies]
+rand = "0.5.4"
 termion = "1.5.1"

@@ -44,7 +44,10 @@ impl Game {
     }
 
     fn random_piece_pos(&mut self) -> Coord {
-        Coord(self.rng.gen_range(0, self.field.width() as i8), 0)
+        // In cases of some Tetrominos and its orientation,
+        // we cannot put it at the leftmost or rightmost cell.
+        let right_limit = self.field.width() - 2;
+        Coord(self.rng.gen_range(2, right_limit as i8), 0)
     }
 
     fn drop_tetro(&mut self) {

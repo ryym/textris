@@ -42,15 +42,15 @@ impl Game {
     }
 
     pub fn slide_piece(&mut self, dir: Dir) {
-        let _ = self.try_move_piece(dir);
+        let _ = self.move_piece(dir);
     }
 
     pub fn tick(&mut self) {
-        self.try_move_piece(Dir::Down).unwrap();
+        self.move_piece(Dir::Down).unwrap();
         // Delete no-gap lines.
     }
 
-    fn try_move_piece(&mut self, dir: Dir) -> Result<(), ()> {
+    fn move_piece(&mut self, dir: Dir) -> Result<(), ()> {
         let new_pos = self.piece_pos + dir.to_coord();
         let coords = self.piece.coords(new_pos);
         if !coords.iter().all(|c| self.field.is_in_range(*c)) {

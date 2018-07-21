@@ -56,17 +56,17 @@ impl Game {
 
     pub fn rotate_piece(&mut self, clockwise: bool) {
         let current_coords = self.make_piece().coords(self.piece_pos);
-        self.clear_blocks(&current_coords);
+        self.field.clear_blocks(&current_coords);
 
         let dir = self.tetro_dir.next_dir(clockwise);
         let piece = self.tetro.make_piece(dir);
         let coords = piece.coords(self.piece_pos);
 
-        if self.is_movable(&coords) {
+        if self.field.is_movable(&coords) {
             self.tetro_dir = dir;
-            self.render_blocks(piece.block(), &coords);
+            self.field.render_blocks(piece.block(), &coords);
         } else {
-            self.render_blocks(piece.block(), &current_coords);
+            self.field.render_blocks(piece.block(), &current_coords);
         }
     }
 
@@ -77,37 +77,19 @@ impl Game {
     fn move_piece(&mut self, dir: Dir) -> Result<(), ()> {
         let piece = self.make_piece();
         let current_coords = piece.coords(self.piece_pos);
-        self.clear_blocks(&current_coords);
+        self.field.clear_blocks(&current_coords);
 
         let new_pos = self.piece_pos + dir.to_coord();
         let coords = piece.coords(new_pos);
 
-        if self.is_movable(&coords) {
-            self.render_blocks(piece.block(), &coords);
+        if self.field.is_movable(&coords) {
+            self.field.render_blocks(piece.block(), &coords);
             self.piece_pos = new_pos;
             Ok(())
         } else {
-            self.render_blocks(piece.block(), &current_coords);
+            self.field.render_blocks(piece.block(), &current_coords);
             Err(())
         }
-    }
-
-    fn clear_blocks(&mut self, coords: &[Coord]) {
-        for pos in coords {
-            self.field[*pos] = None;
-        }
-    }
-
-    fn render_blocks(&mut self, block: Block, coords: &[Coord]) {
-        for pos in coords {
-            self.field[*pos] = Some(block);
-        }
-    }
-
-    fn is_movable(&self, coords: &[Coord]) -> bool {
-        coords.iter().all(|&c| {
-            self.field.is_in_range(c) && self.field[c].is_none()
-        })
     }
 
     fn delete_completed_lines(&mut self) {

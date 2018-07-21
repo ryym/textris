@@ -35,6 +35,22 @@ impl Field {
         0 <= pos.0 && pos.0 < w && 0 <= pos.1 && pos.1 < h
     }
 
+    pub fn is_movable(&self, coords: &[Coord]) -> bool {
+        coords.iter().all(|&c| self.is_in_range(c) && self[c].is_none())
+    }
+
+    pub fn clear_blocks(&mut self, coords: &[Coord]) {
+        for pos in coords {
+            self[*pos] = None;
+        }
+    }
+
+    pub fn render_blocks(&mut self, block: Block, coords: &[Coord]) {
+        for pos in coords {
+            self[*pos] = Some(block);
+        }
+    }
+
     pub fn lines_iter(&self) -> Iter<Line> {
         self.cells.iter()
     }

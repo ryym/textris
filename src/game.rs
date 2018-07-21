@@ -6,6 +6,7 @@ use tetromino::Tetromino;
 pub struct Game {
     tetro: Tetromino,
     tetro_dir: Dir,
+    tetro_stopped: bool,
     piece_pos: Coord,
     field: Field,
 }
@@ -15,9 +16,16 @@ impl Game {
         Game {
             tetro: Tetromino::T,
             tetro_dir: Dir::Up,
+            tetro_stopped: false,
             piece_pos: Coord(2, 0),
             field: Field::new(16, 24),
         }
+    }
+
+    fn drop_tetro(&mut self, tetro: Tetromino) {
+        self.tetro = tetro;
+        self.tetro_dir = Dir::Up;
+        self.piece_pos = Coord(2, 0);
     }
 
     pub fn field(&self) -> &Field {
@@ -41,7 +49,19 @@ impl Game {
     }
 
     pub fn tick(&mut self) {
-        self.move_piece(Dir::Down).unwrap();
+        if self.tetro_stopped {
+            self.tetro_stopped = false;
+            return;
+        }
+
+        match self.move_piece(Dir::Down) {
+            Ok(_) => return,
+            Err(_) => {
+                self.drop_tetro(Tetromino::T);
+                self.tetro_stopped = true;
+            }
+        }
+
         // Delete no-gap lines.
     }
 

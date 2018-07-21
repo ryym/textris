@@ -20,8 +20,11 @@ pub struct Piece {
 }
 
 impl Piece {
-    pub fn new(block: Block, coords: [Coord; 4]) -> Self {
-        Piece { block, coords }
+    pub fn new(chr: char, coords: PieceCoords) -> Self {
+        Piece {
+            block: Block::new(chr),
+            coords,
+        }
     }
 
     pub fn block(&self) -> Block {

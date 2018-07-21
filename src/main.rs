@@ -6,7 +6,8 @@ use std::thread;
 use std::time::Duration;
 use termion::async_stdin;
 use termion::raw::IntoRawMode;
-use textris::game::{Game, Dir};
+use textris::coord::Dir;
+use textris::game::Game;
 
 fn main() {
     let stdout = stdout();

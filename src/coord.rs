@@ -16,3 +16,22 @@ impl AddAssign for Coord {
         self.1 += rhs.1;
     }
 }
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Dir {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
+impl Dir {
+    pub fn to_coord(&self) -> Coord {
+        match self {
+            Dir::Left => Coord(-1, 0),
+            Dir::Right => Coord(1, 0),
+            Dir::Down => Coord(0, 1),
+            Dir::Up => Coord(0, -1),
+        }
+    }
+}

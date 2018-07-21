@@ -1,37 +1,19 @@
-use coord::Coord;
+use coord::{Coord, Dir};
 use field::Field;
-use piece::{Block, Piece};
-
-pub enum Dir {
-    Left,
-    Right,
-    Down,
-}
-
-impl Dir {
-    pub fn to_coord(&self) -> Coord {
-        match self {
-            Dir::Left => Coord(-1, 0),
-            Dir::Right => Coord(1, 0),
-            Dir::Down => Coord(0, 1),
-        }
-    }
-}
+use tetromino::Tetromino;
 
 pub struct Game {
-    piece: Piece,
+    tetro: Tetromino,
+    tetro_dir: Dir,
     piece_pos: Coord,
     field: Field,
 }
 
 impl Game {
     pub fn new() -> Self {
-        let piece = Piece::new(
-            Block::new('I'),
-            [Coord(0, 0), Coord(0, 1), Coord(0, 2), Coord(0, 3)],
-        );
         Game {
-            piece,
+            tetro: Tetromino::I,
+            tetro_dir: Dir::Up,
             piece_pos: Coord(2, 0),
             field: Field::new(16, 24),
         }
@@ -42,7 +24,9 @@ impl Game {
     }
 
     pub fn slide_piece(&mut self, dir: Dir) {
-        let _ = self.move_piece(dir);
+        if dir != Dir::Up {
+            let _ = self.move_piece(dir);
+        }
     }
 
     pub fn tick(&mut self) {
@@ -51,18 +35,19 @@ impl Game {
     }
 
     fn move_piece(&mut self, dir: Dir) -> Result<(), ()> {
+        let piece = self.tetro.make_piece(self.tetro_dir);
         let new_pos = self.piece_pos + dir.to_coord();
-        let coords = self.piece.coords(new_pos);
+        let coords = piece.coords(new_pos);
         if !coords.iter().all(|c| self.field.is_in_range(*c)) {
             return Err(());
         }
 
-        for pos in self.piece.coords(self.piece_pos) {
+        for pos in piece.coords(self.piece_pos) {
             self.field[pos] = None;
         }
 
         for pos in coords {
-            self.field[pos] = Some(self.piece.block());
+            self.field[pos] = Some(piece.block());
         }
 
         self.piece_pos = new_pos;

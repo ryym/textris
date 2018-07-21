@@ -56,8 +56,8 @@ fn render(g: &Game, w: &mut Write) {
         write!(w, "{}", termion::cursor::Goto(1, (i as u16) + 1)).unwrap();
         for cell in line.iter() {
             match cell {
-                Some(block) => write!(w, "{}", block.chr),
-                None => write!(w, " "),
+                Some(block) => write!(w, "{} ", block.chr),
+                None => write!(w, "  "),
             }.unwrap();
         }
     }

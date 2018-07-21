@@ -43,10 +43,9 @@ impl Game {
             Err(_) => {
                 self.drop_tetro(Tetromino::T);
                 self.tetro_stopped = true;
+                self.delete_completed_lines();
             }
         }
-
-        // Delete no-gap lines.
     }
 
     pub fn slide_piece(&mut self, dir: Dir) {
@@ -109,5 +108,17 @@ impl Game {
         coords.iter().all(|&c| {
             self.field.is_in_range(c) && self.field[c].is_none()
         })
+    }
+
+    fn delete_completed_lines(&mut self) {
+        let targets: Vec<usize> = self.field.lines_iter()
+            .enumerate()
+            .filter(|(_i, line)| line.iter().all(|cell| cell.is_some()))
+            .map(|(i, _line)| i)
+            .collect();
+
+        for i in targets.into_iter() {
+            self.field.delete_line(i);
+        }
     }
 }

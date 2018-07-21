@@ -13,10 +13,14 @@ pub struct Field {
     height: usize,
 }
 
+fn make_line(width: usize) -> Line {
+    iter::repeat(None).take(width).collect()
+}
+
 impl Field {
     pub fn new(width: usize, height: usize) -> Self {
         let cells = (0..height)
-            .map(|_| iter::repeat(None).take(width).collect())
+            .map(|_| make_line(width))
             .collect();
         Field {
             cells,
@@ -33,6 +37,11 @@ impl Field {
 
     pub fn lines_iter(&self) -> Iter<Line> {
         self.cells.iter()
+    }
+
+    pub fn delete_line(&mut self, idx: usize) {
+        self.cells.remove(idx);
+        self.cells.insert(0, make_line(self.width));
     }
 }
 

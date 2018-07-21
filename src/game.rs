@@ -32,20 +32,25 @@ impl Game {
         &self.field
     }
 
-    pub fn tick(&mut self) {
+    pub fn tick(&mut self) -> Result<(), ()> {
         if self.tetro_stopped {
             self.tetro_stopped = false;
-            return;
+            return Ok(());
         }
 
         match self.move_piece(Dir::Down) {
-            Ok(_) => return,
+            Ok(_) => {},
             Err(_) => {
                 self.drop_tetro(Tetromino::T);
                 self.tetro_stopped = true;
                 self.delete_completed_lines();
+
+                if self.field.is_reached() {
+                    return Err(());
+                }
             }
-        }
+        };
+        Ok(())
     }
 
     pub fn slide_piece(&mut self, dir: Dir) {

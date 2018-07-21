@@ -39,6 +39,10 @@ impl Field {
         coords.iter().all(|&c| self.is_in_range(c) && self[c].is_none())
     }
 
+    pub fn is_reached(&self) -> bool {
+        self.cells[0].iter().any(|c| c.is_some())
+    }
+
     pub fn clear_blocks(&mut self, coords: &[Coord]) {
         for pos in coords {
             self[*pos] = None;

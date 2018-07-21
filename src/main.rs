@@ -16,9 +16,10 @@ fn main() {
 
     write!(
         stdout,
-        "{}{}",
+        "{}{}{}",
         termion::clear::All,
-        termion::cursor::Goto(1, 1)
+        termion::cursor::Goto(1, 1),
+        termion::cursor::Hide,
     ).unwrap();
 
     let mut game = Game::new();
@@ -40,7 +41,13 @@ fn main() {
         }
 
         if t % 20 == 0 {
-            game.tick();
+            match game.tick() {
+                Ok(_) => {},
+                Err(_) => {
+                    render_game_over(&mut stdout);
+                    break;
+                }
+            }
         }
 
         render(&game, &mut stdout);
@@ -49,6 +56,19 @@ fn main() {
         thread::sleep(interval);
         t += 1;
     }
+
+    stdout.flush().unwrap();
+
+    // Wait any key inputs before exiting.
+    loop {
+        match stdin.next() {
+            Some(_) => break,
+            _ => {},
+        }
+        thread::sleep(interval);
+    }
+
+    write!(stdout, "{}", termion::cursor::Show).unwrap();
 }
 
 fn render(g: &Game, w: &mut Write) {
@@ -61,4 +81,9 @@ fn render(g: &Game, w: &mut Write) {
             }.unwrap();
         }
     }
+}
+
+fn render_game_over(w: &mut Write) {
+    write!(w, "{}", termion::cursor::Goto(1, 1)).unwrap();
+    write!(w, "====== GAME OVER ======").unwrap();
 }

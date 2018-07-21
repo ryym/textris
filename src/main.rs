@@ -3,6 +3,7 @@ extern crate textris;
 
 use std::io::{stdout, Read, Write};
 use std::thread;
+use std::iter;
 use std::time::Duration;
 use termion::async_stdin;
 use termion::raw::IntoRawMode;
@@ -71,14 +72,23 @@ fn main() {
 }
 
 fn render(g: &Game, w: &mut Write) {
-    for (i, line) in g.field().lines_iter().enumerate() {
-        write!(w, "{}", termion::cursor::Goto(1, (i as u16) + 1)).unwrap();
+    let field = g.field();
+
+    for (i, line) in field.lines_iter().enumerate() {
+        write!(w, "{}|", termion::cursor::Goto(1, (i as u16) + 1)).unwrap();
         for cell in line.iter() {
             match cell {
                 Some(block) => write!(w, "{} ", block.chr),
                 None => write!(w, "  "),
             }.unwrap();
         }
+        write!(w, "|").unwrap();
+    }
+
+    write!(w, "{}", termion::cursor::Goto(1, (field.height() + 1) as u16)).unwrap();
+    let width = field.width();
+    for floor in iter::repeat("--").take(width + 1) {
+        write!(w, "{}", floor).unwrap();
     }
 }
 

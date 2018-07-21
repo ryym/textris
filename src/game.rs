@@ -1,6 +1,6 @@
 use coord::{Coord, Dir};
 use field::Field;
-use piece::{Block, Piece};
+use piece::Piece;
 use tetromino::Tetromino;
 
 pub struct Game {

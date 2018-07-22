@@ -17,6 +17,12 @@ impl AddAssign for Coord {
     }
 }
 
+impl Default for Coord {
+    fn default() -> Self {
+        Coord(0, 0)
+    }
+}
+
 pub type Dirs = [Dir; 4];
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -62,5 +68,11 @@ impl Dir {
             Dir::Down => Dir::Up,
             Dir::Left => Dir::Right,
         }
+    }
+}
+
+impl Default for Dir {
+    fn default() -> Self {
+        Dir::Up
     }
 }

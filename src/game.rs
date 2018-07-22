@@ -17,22 +17,18 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Self {
-        let mut rng = thread_rng();
-        let tetros = Tetromino::all();
-        let dirs = Dir::all();
-        let tetro = *rng.choose(&tetros).unwrap();
-        let tetro_dir = *rng.choose(&dirs).unwrap();
-        let piece_pos = Coord(rng.gen_range(0, 16), 0);
-        Game {
-            rng,
-            tetros,
-            dirs,
-            tetro,
-            tetro_dir,
+        let mut game = Game {
+            rng: thread_rng(),
+            tetros: Tetromino::all(),
+            dirs: Dir::all(),
+            tetro: Tetromino::I, // temp
+            tetro_dir: Default::default(),
             tetro_stopped: false,
-            piece_pos,
+            piece_pos: Default::default(),
             field: Field::new(16, 16),
-        }
+        };
+        game.drop_tetro();
+        game
     }
 
     fn random_tetro(&mut self) -> Tetromino {

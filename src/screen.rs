@@ -1,15 +1,17 @@
 use coord::{Coord, Dir};
+use elapsed::Elapsed;
 use game::Game;
-use std::io::{stdout, Read, Write, Bytes};
+use std::io::{stdout, Bytes, Read, Write};
 use std::iter;
 use std::thread;
 use std::time::Duration;
 use termion as tm;
-use termion::{async_stdin, AsyncReader};
 use termion::raw::IntoRawMode;
+use termion::{async_stdin, AsyncReader};
 
 struct State {
     field_pos: Coord,
+    elapsed: Elapsed,
 }
 
 pub fn play(mut game: Game) {
@@ -25,11 +27,12 @@ pub fn play(mut game: Game) {
         tm::cursor::Hide,
     ).unwrap();
 
-    let state = State {
+    let mut state = State {
         field_pos: Coord(1, 2),
+        elapsed: Elapsed::new(),
     };
 
-    let interval = Duration::from_millis(32);
+    let interval = Duration::from_millis(50);
     let mut t = 0;
     loop {
         match stdin.next() {
@@ -45,7 +48,7 @@ pub fn play(mut game: Game) {
             _ => {}
         }
 
-        if t % 20 == 0 {
+        if t % 10 == 0 {
             match game.tick() {
                 Ok(_) => {}
                 Err(_) => {
@@ -55,6 +58,10 @@ pub fn play(mut game: Game) {
                     break;
                 }
             }
+        }
+
+        if t % 20 == 0 {
+            state.elapsed.add_secs(1);
         }
 
         render(&mut stdout, &game, &state);
@@ -84,11 +91,22 @@ fn render(w: &mut Write, g: &Game, state: &State) {
         write!(w, "|").unwrap();
     }
 
-    write!(w, "{}", tm::cursor::Goto(x as u16, (field.height() + y) as u16)).unwrap();
+    write!(
+        w,
+        "{}",
+        tm::cursor::Goto(x as u16, (field.height() + y) as u16)
+    ).unwrap();
     let width = field.width();
     for floor in iter::repeat("--").take(width + 1) {
         write!(w, "{}", floor).unwrap();
     }
+
+    write!(
+        w,
+        "{}Time: {}",
+        tm::cursor::Goto((field.width() * 2 + 4) as u16, y as u16),
+        state.elapsed,
+    ).unwrap();
 }
 
 fn render_game_over(w: &mut Write) {

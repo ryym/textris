@@ -12,6 +12,11 @@ struct State {
     elapsed: Elapsed,
 }
 
+struct Modal<'a> {
+    pub title: &'a str,
+    pub content: Vec<&'a str>,
+}
+
 pub struct Screen<R: Read, W: Write> {
     stdin: Bytes<R>,
     stdout: W,
@@ -62,8 +67,15 @@ where
             TITLE,
         ).unwrap();
 
+        write!(
+            self.stdout,
+            "{}{}",
+            tm::cursor::Goto(1, 2),
+            "(press '?' for help)"
+        ).unwrap();
+
         let mut state = State {
-            field_pos: Coord(1, 2),
+            field_pos: Coord(1, 3),
             elapsed: Elapsed::new(),
         };
 
@@ -78,6 +90,18 @@ where
                     b'j' => self.game.slide_piece(Dir::Down),
                     b'd' => self.game.rotate_piece(false),
                     b'f' => self.game.rotate_piece(true),
+                    b'?' => {
+                        self.show_modal(Modal {
+                            title: "HELP",
+                            content: vec![
+                                "h - Move left",
+                                "l - Move right",
+                                "j - Speed up",
+                                "d,f - Rotate",
+                                "q - Quit",
+                            ],
+                        });
+                    }
                     _ => {}
                 },
                 _ => {}
@@ -146,6 +170,54 @@ where
             tm::cursor::Goto((field.width() * 2 + 4) as u16, y as u16),
             state.elapsed,
         ).unwrap();
+    }
+
+    fn show_modal(&mut self, modal: Modal) {
+        let border = "---------------------------------------";
+        let cleared = iter::repeat(" ").take(border.len()).collect::<String>();
+        let cleared_content = &cleared[1..cleared.len() - 1];
+        let y_start = 5;
+        let mut y = y_start;
+        let x = 3;
+
+        write!(self.stdout, "{}{}", tm::cursor::Goto(x, y), border).unwrap();
+        y += 1;
+        write!(
+            self.stdout,
+            "{}|{}|",
+            tm::cursor::Goto(x, y),
+            cleared_content
+        ).unwrap();
+        write!(self.stdout, "{}{}", tm::cursor::Goto(x + 2, y), modal.title).unwrap();
+        y += 1;
+        write!(
+            self.stdout,
+            "{}|{}|",
+            tm::cursor::Goto(x, y),
+            &border[1..border.len() - 1]
+        ).unwrap();
+
+        for line in modal.content.iter() {
+            y += 1;
+            write!(
+                self.stdout,
+                "{}|{}|",
+                tm::cursor::Goto(x, y),
+                cleared_content
+            ).unwrap();
+            write!(self.stdout, "{}{}", tm::cursor::Goto(x + 2, y), line).unwrap();
+        }
+        write!(self.stdout, "{}{}", tm::cursor::Goto(x, y + 1), border).unwrap();
+
+        self.stdout.flush().unwrap();
+        self.wait_any_key_input(Duration::from_millis(50));
+
+        // y = y_start;
+        write!(self.stdout, "{}{}", tm::cursor::Goto(x, y_start), cleared).unwrap();
+        for y in y_start..=y {
+            write!(self.stdout, "{}{}", tm::cursor::Goto(x, y), cleared).unwrap();
+        }
+        write!(self.stdout, "{}{}", tm::cursor::Goto(x, y + 1), cleared).unwrap();
     }
 
     fn render_game_over(&mut self) {

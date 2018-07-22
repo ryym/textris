@@ -18,6 +18,8 @@ pub struct Screen<R: Read, W: Write> {
     game: Game,
 }
 
+const TITLE: &'static str = "- T E X T R I S -";
+
 impl<R, W> Screen<R, W>
 where
     R: Read,
@@ -31,13 +33,33 @@ where
         }
     }
 
+    pub fn start(&mut self) {
+        let interval = Duration::from_millis(32);
+        for i in 0..(TITLE.len() + 1) {
+            write!(
+                self.stdout,
+                "{}{}{}{}",
+                tm::clear::All,
+                tm::cursor::Goto(1, 1),
+                tm::cursor::Hide,
+                &TITLE[0..i],
+            ).unwrap();
+            self.stdout.flush().unwrap();
+            thread::sleep(interval);
+        }
+        thread::sleep(Duration::from_millis(800));
+
+        self.play();
+    }
+
     pub fn play(&mut self) {
         write!(
             self.stdout,
-            "{}{}{} -TEXTRIS-",
+            "{}{}{}{}",
             tm::clear::All,
             tm::cursor::Goto(1, 1),
             tm::cursor::Hide,
+            TITLE,
         ).unwrap();
 
         let mut state = State {

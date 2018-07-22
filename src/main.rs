@@ -14,5 +14,5 @@ fn main() {
     let game = Game::new();
 
     let mut screen = Screen::new(stdin, stdout, game);
-    screen.play();
+    screen.start();
 }

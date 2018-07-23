@@ -1,4 +1,5 @@
 use coord::Dir;
+use errors::*;
 use play::Play;
 use screen::{Modal, Screen};
 use std::io::{Read, Write};
@@ -39,26 +40,40 @@ where
         }
     }
 
-    pub fn start(&mut self) {
-        self.screen.render_title();
-        thread::sleep(Duration::from_millis(800));
-        self.play(Play::new());
+    pub fn stop_by_error(&mut self, err: Error) {
+        self.screen
+            .show_modal(&Modal {
+                title: "ERROR",
+                content: &[
+                    "Sorry, unexpected error is occurred.",
+                    "details:",
+                    &err.to_string(),
+                ],
+            })
+            .expect(&format!("show error dialog ({})", err));
     }
 
-    fn play(&mut self, mut play: Play) {
-        self.screen.render_header();
+    pub fn start(&mut self) -> Result<()> {
+        self.screen.render_title()?;
+        thread::sleep(Duration::from_millis(800));
+        self.play(Play::new())?;
+        Ok(())
+    }
+
+    fn play(&mut self, mut play: Play) -> Result<()> {
+        self.screen.render_header()?;
 
         let interval = Duration::from_millis(FRAME);
         let mut t = 0;
         loop {
-            match self.handle_user_input(&mut play) {
+            match self.handle_user_input(&mut play)? {
                 Some(Action::Quit) => break,
                 _ => {}
             };
 
             if t % UPDATE == 0 {
                 if let Err(_) = play.update() {
-                    self.screen.render_game_over(&play);
+                    self.screen.render_game_over(&play)?;
                     break;
                 }
             }
@@ -66,26 +81,27 @@ where
                 play.tick();
             }
 
-            self.screen.render(&play);
+            self.screen.render(&play)?;
             thread::sleep(interval);
             t += 1;
         }
+        Ok(())
     }
 
-    fn handle_user_input(&mut self, play: &mut Play) -> Option<Action> {
+    fn handle_user_input(&mut self, play: &mut Play) -> Result<Option<Action>> {
         match self.screen.next_input() {
             Some(Ok(key)) => match key {
-                b'q' => return Some(Action::Quit),
+                b'q' => return Ok(Some(Action::Quit)),
                 b'h' => play.slide_piece(Dir::Left),
                 b'l' => play.slide_piece(Dir::Right),
                 b'j' => play.slide_piece(Dir::Down),
                 b'd' => play.rotate_piece(false),
                 b'f' => play.rotate_piece(true),
-                b'?' => self.screen.show_modal(&self.help_modal),
+                b'?' => self.screen.show_modal(&self.help_modal)?,
                 _ => {}
             },
             _ => {}
         };
-        None
+        Ok(None)
     }
 }

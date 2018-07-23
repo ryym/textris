@@ -45,7 +45,7 @@ where
             .show_modal(&Modal {
                 title: "ERROR",
                 content: &[
-                    "Sorry, unexpected error is occurred.",
+                    "Sorry, unexpected error occurred.",
                     "details:",
                     &err.to_string(),
                 ],

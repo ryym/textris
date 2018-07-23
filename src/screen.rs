@@ -61,7 +61,6 @@ where
     pub fn render_header(&mut self) -> Result<()> {
         self.clear_screen()?;
         write!(self.stdout, "{}", TITLE)?;
-        write!(self.stdout, "{}{}", Goto(1, 2), "(press '?' for help)")?;
         Ok(())
     }
 
@@ -94,15 +93,16 @@ where
             write!(self.stdout, "{}", floor)?;
         }
 
-        self.render_scores(&play, (field.width() * 2 + 4) as u16)?;
+        self.render_side_menu(&play, (field.width() * 2 + 4) as u16)?;
 
         Ok(())
     }
 
-    fn render_scores(&mut self, play: &Play, x: u16) -> Result<()> {
+    fn render_side_menu(&mut self, play: &Play, x: u16) -> Result<()> {
         let y = FIELD_Y as u16;
-        write!(self.stdout, "{}Time:  {}", Goto(x, y), play.elapsed())?;
-        write!(self.stdout, "{}Score: {}", Goto(x, y + 1), play.score())?;
+        write!(self.stdout, "{}{}", Goto(x, y), "?: Help")?;
+        write!(self.stdout, "{}Time:  {}", Goto(x, y + 2), play.elapsed())?;
+        write!(self.stdout, "{}Score: {}", Goto(x, y + 3), play.score())?;
         Ok(())
     }
 

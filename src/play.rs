@@ -5,10 +5,42 @@ use piece::Piece;
 use rand::{thread_rng, Rng, ThreadRng};
 use tetromino::{Tetromino, Tetrominos};
 
-pub struct Play {
-    rng: ThreadRng,
+struct Random<R: Rng> {
+    rng: R,
     tetros: Tetrominos,
     dirs: Dirs,
+}
+
+impl<R> Random<R>
+where
+    R: Rng,
+{
+    pub fn new(rng: R) -> Self {
+        Random {
+            rng,
+            tetros: Tetromino::all(),
+            dirs: Dir::all(),
+        }
+    }
+
+    pub fn random_tetro(&mut self) -> Tetromino {
+        *self.rng.choose(&self.tetros).unwrap()
+    }
+
+    pub fn random_tetro_dir(&mut self) -> Dir {
+        *self.rng.choose(&self.dirs).unwrap()
+    }
+
+    pub fn random_piece_pos(&mut self, width: usize) -> Coord {
+        // In cases of some Tetrominos and its orientation,
+        // we cannot put it at the leftmost or rightmost cell.
+        let right_limit = width - 2;
+        Coord(self.rng.gen_range(2, right_limit as i8), 0)
+    }
+}
+
+pub struct Play {
+    random: Random<ThreadRng>,
     tetro: Tetromino,
     tetro_dir: Dir,
     tetro_stopped: bool,
@@ -20,9 +52,7 @@ pub struct Play {
 impl Play {
     pub fn new() -> Self {
         let mut play = Play {
-            rng: thread_rng(),
-            tetros: Tetromino::all(),
-            dirs: Dir::all(),
+            random: Random::new(thread_rng()),
             tetro: Tetromino::I, // temp
             tetro_dir: Default::default(),
             tetro_stopped: false,
@@ -34,25 +64,11 @@ impl Play {
         play
     }
 
-    fn random_tetro(&mut self) -> Tetromino {
-        *self.rng.choose(&self.tetros).unwrap()
-    }
-
-    fn random_tetro_dir(&mut self) -> Dir {
-        *self.rng.choose(&self.dirs).unwrap()
-    }
-
-    fn random_piece_pos(&mut self) -> Coord {
-        // In cases of some Tetrominos and its orientation,
-        // we cannot put it at the leftmost or rightmost cell.
-        let right_limit = self.field.width() - 2;
-        Coord(self.rng.gen_range(2, right_limit as i8), 0)
-    }
-
     fn drop_tetro(&mut self) {
-        self.tetro = self.random_tetro();
-        self.tetro_dir = self.random_tetro_dir();
-        self.piece_pos = self.random_piece_pos();
+        let random = &mut self.random;
+        self.tetro = random.random_tetro();
+        self.tetro_dir = random.random_tetro_dir();
+        self.piece_pos = random.random_piece_pos(self.field.width());
     }
 
     pub fn field(&self) -> &Field {

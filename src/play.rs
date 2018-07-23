@@ -1,4 +1,5 @@
 use coord::{Coord, Dir, Dirs};
+use elapsed::Elapsed;
 use field::Field;
 use piece::Piece;
 use rand::{thread_rng, Rng, ThreadRng};
@@ -13,6 +14,7 @@ pub struct Play {
     tetro_stopped: bool,
     piece_pos: Coord,
     field: Field,
+    elapsed: Elapsed,
 }
 
 impl Play {
@@ -26,6 +28,7 @@ impl Play {
             tetro_stopped: false,
             piece_pos: Default::default(),
             field: Field::new(16, 16),
+            elapsed: Elapsed::new(),
         };
         play.drop_tetro();
         play
@@ -56,7 +59,11 @@ impl Play {
         &self.field
     }
 
-    pub fn tick(&mut self) -> Result<(), ()> {
+    pub fn elapsed(&self) -> &Elapsed {
+        &self.elapsed
+    }
+
+    pub fn update(&mut self) -> Result<(), ()> {
         if self.tetro_stopped {
             self.tetro_stopped = false;
             return Ok(());
@@ -75,6 +82,10 @@ impl Play {
             }
         };
         Ok(())
+    }
+
+    pub fn tick(&mut self) {
+        self.elapsed.add_secs(1);
     }
 
     pub fn slide_piece(&mut self, dir: Dir) {

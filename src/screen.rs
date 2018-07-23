@@ -1,16 +1,10 @@
-use coord::{Coord, Dir};
-use elapsed::Elapsed;
+use coord::Dir;
 use play::Play;
 use std::io::{Bytes, Read, Write};
 use std::iter;
 use std::thread;
 use std::time::Duration;
 use termion as tm;
-
-struct State {
-    field_pos: Coord,
-    elapsed: Elapsed,
-}
 
 struct Modal<'a> {
     pub title: &'a str,
@@ -69,11 +63,6 @@ where
             "(press '?' for help)"
         ).unwrap();
 
-        let mut state = State {
-            field_pos: Coord(1, 3),
-            elapsed: Elapsed::new(),
-        };
-
         let interval = Duration::from_millis(50);
         let mut t = 0;
         loop {
@@ -103,12 +92,12 @@ where
             }
 
             if t % 10 == 0 {
-                match play.tick() {
+                match play.update() {
                     Ok(_) => {}
                     Err(_) => {
-                        self.show_modal(Modal{
+                        self.show_modal(Modal {
                             title: "play OVER",
-                            content: vec![&format!("Time: {}", state.elapsed)],
+                            content: vec![&format!("Time: {}", play.elapsed())],
                         });
                         break;
                     }
@@ -116,10 +105,10 @@ where
             }
 
             if t % 20 == 0 {
-                state.elapsed.add_secs(1);
+                play.tick();
             }
 
-            self.render(&play, &state);
+            self.render(&play, 1, 3);
             self.stdout.flush().unwrap();
 
             thread::sleep(interval);
@@ -129,11 +118,8 @@ where
         write!(self.stdout, "{}", tm::cursor::Show).unwrap();
     }
 
-    fn render(&mut self, play: &Play, state: &State) {
+    fn render(&mut self, play: &Play, x: usize, y: usize) {
         let field = play.field();
-        let Coord(x, y) = state.field_pos;
-        let x = x as usize;
-        let y = y as usize;
 
         for (i, line) in field.lines_iter().enumerate() {
             write!(
@@ -164,7 +150,7 @@ where
             self.stdout,
             "{}Time: {}",
             tm::cursor::Goto((field.width() * 2 + 4) as u16, y as u16),
-            state.elapsed,
+            play.elapsed(),
         ).unwrap();
     }
 

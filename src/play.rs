@@ -4,7 +4,7 @@ use piece::Piece;
 use rand::{thread_rng, Rng, ThreadRng};
 use tetromino::{Tetromino, Tetrominos};
 
-pub struct Game {
+pub struct Play {
     rng: ThreadRng,
     tetros: Tetrominos,
     dirs: Dirs,
@@ -15,9 +15,9 @@ pub struct Game {
     field: Field,
 }
 
-impl Game {
+impl Play {
     pub fn new() -> Self {
-        let mut game = Game {
+        let mut play = Play {
             rng: thread_rng(),
             tetros: Tetromino::all(),
             dirs: Dir::all(),
@@ -27,8 +27,8 @@ impl Game {
             piece_pos: Default::default(),
             field: Field::new(16, 16),
         };
-        game.drop_tetro();
-        game
+        play.drop_tetro();
+        play
     }
 
     fn random_tetro(&mut self) -> Tetromino {

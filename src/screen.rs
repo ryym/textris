@@ -1,6 +1,6 @@
 use coord::{Coord, Dir};
 use elapsed::Elapsed;
-use game::Game;
+use play::Play;
 use std::io::{Bytes, Read, Write};
 use std::iter;
 use std::thread;
@@ -49,10 +49,10 @@ where
         }
         thread::sleep(Duration::from_millis(800));
 
-        self.play(Game::new());
+        self.play(Play::new());
     }
 
-    pub fn play(&mut self, mut game: Game) {
+    pub fn play(&mut self, mut play: Play) {
         write!(
             self.stdout,
             "{}{}{}{}",
@@ -80,11 +80,11 @@ where
             match self.stdin.next() {
                 Some(Ok(key)) => match key {
                     b'q' => break,
-                    b'h' => game.slide_piece(Dir::Left),
-                    b'l' => game.slide_piece(Dir::Right),
-                    b'j' => game.slide_piece(Dir::Down),
-                    b'd' => game.rotate_piece(false),
-                    b'f' => game.rotate_piece(true),
+                    b'h' => play.slide_piece(Dir::Left),
+                    b'l' => play.slide_piece(Dir::Right),
+                    b'j' => play.slide_piece(Dir::Down),
+                    b'd' => play.rotate_piece(false),
+                    b'f' => play.rotate_piece(true),
                     b'?' => {
                         self.show_modal(Modal {
                             title: "HELP",
@@ -103,11 +103,11 @@ where
             }
 
             if t % 10 == 0 {
-                match game.tick() {
+                match play.tick() {
                     Ok(_) => {}
                     Err(_) => {
                         self.show_modal(Modal{
-                            title: "GAME OVER",
+                            title: "play OVER",
                             content: vec![&format!("Time: {}", state.elapsed)],
                         });
                         break;
@@ -119,7 +119,7 @@ where
                 state.elapsed.add_secs(1);
             }
 
-            self.render(&game, &state);
+            self.render(&play, &state);
             self.stdout.flush().unwrap();
 
             thread::sleep(interval);
@@ -129,8 +129,8 @@ where
         write!(self.stdout, "{}", tm::cursor::Show).unwrap();
     }
 
-    fn render(&mut self, game: &Game, state: &State) {
-        let field = game.field();
+    fn render(&mut self, play: &Play, state: &State) {
+        let field = play.field();
         let Coord(x, y) = state.field_pos;
         let x = x as usize;
         let y = y as usize;

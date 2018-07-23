@@ -7,7 +7,7 @@ use termion as tm;
 
 pub struct Modal<'a> {
     pub title: &'a str,
-    pub content: Vec<&'a str>,
+    pub content: &'a [&'a str],
 }
 
 const TITLE: &'static str = "- T E X T R I S -";
@@ -106,7 +106,7 @@ where
     pub fn render_game_over(&mut self, play: &Play) {
         self.show_modal(&Modal {
             title: "GAME OVER",
-            content: vec![&format!("Time: {}", play.elapsed())],
+            content: &[&format!("Time: {}", play.elapsed())],
         });
     }
 

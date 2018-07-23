@@ -28,7 +28,7 @@ where
             screen,
             help_modal: Modal {
                 title: "HELP",
-                content: vec![
+                content: &[
                     "h - Move left",
                     "l - Move right",
                     "j - Speed up",

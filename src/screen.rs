@@ -106,9 +106,10 @@ where
                 match game.tick() {
                     Ok(_) => {}
                     Err(_) => {
-                        self.render_game_over();
-                        self.stdout.flush().unwrap();
-                        self.wait_any_key_input(interval);
+                        self.show_modal(Modal{
+                            title: "GAME OVER",
+                            content: vec![&format!("Time: {}", state.elapsed)],
+                        });
                         break;
                     }
                 }
@@ -213,11 +214,6 @@ where
             write!(self.stdout, "{}{}", tm::cursor::Goto(x, y), cleared).unwrap();
         }
         write!(self.stdout, "{}{}", tm::cursor::Goto(x, y + 1), cleared).unwrap();
-    }
-
-    fn render_game_over(&mut self) {
-        write!(self.stdout, "{}", tm::cursor::Goto(1, 1)).unwrap();
-        write!(self.stdout, "====== GAME OVER ======").unwrap();
     }
 
     fn wait_any_key_input(&mut self, interval: Duration) {

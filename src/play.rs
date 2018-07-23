@@ -47,6 +47,7 @@ pub struct Play {
     piece_pos: Coord,
     field: Field,
     elapsed: Elapsed,
+    score: u64,
 }
 
 impl Play {
@@ -59,6 +60,7 @@ impl Play {
             piece_pos: Default::default(),
             field: Field::new(16, 16),
             elapsed: Elapsed::new(),
+            score: 0,
         };
         play.drop_tetro();
         play
@@ -79,6 +81,10 @@ impl Play {
         &self.elapsed
     }
 
+    pub fn score(&self) -> u64 {
+        self.score
+    }
+
     pub fn update(&mut self) -> Result<(), ()> {
         if self.tetro_stopped {
             self.tetro_stopped = false;
@@ -90,7 +96,10 @@ impl Play {
             Err(_) => {
                 self.drop_tetro();
                 self.tetro_stopped = true;
-                self.delete_completed_lines();
+                let n_deleted = self.delete_completed_lines();
+
+                // The score is just a number of deleted lines.
+                self.score += n_deleted;
 
                 if self.field.is_reached() {
                     return Err(());
@@ -148,7 +157,7 @@ impl Play {
         }
     }
 
-    fn delete_completed_lines(&mut self) {
+    fn delete_completed_lines(&mut self) -> u64 {
         let targets: Vec<usize> = self.field
             .lines_iter()
             .enumerate()
@@ -156,8 +165,10 @@ impl Play {
             .map(|(i, _line)| i)
             .collect();
 
-        for i in targets.into_iter() {
+        for &i in targets.iter() {
             self.field.delete_line(i);
         }
+
+        targets.len() as u64
     }
 }

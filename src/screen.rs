@@ -100,19 +100,19 @@ where
     }
 
     fn render_scores(&mut self, play: &Play, x: u16) -> Result<()> {
-        write!(
-            self.stdout,
-            "{}Time: {}",
-            Goto(x, FIELD_Y as u16),
-            play.elapsed()
-        )?;
+        let y = FIELD_Y as u16;
+        write!(self.stdout, "{}Time:  {}", Goto(x, y), play.elapsed())?;
+        write!(self.stdout, "{}Score: {}", Goto(x, y + 1), play.score())?;
         Ok(())
     }
 
     pub fn render_game_over(&mut self, play: &Play) -> Result<()> {
         self.show_modal(&Modal {
             title: "GAME OVER",
-            content: &[&format!("Time: {}", play.elapsed())],
+            content: &[
+                &format!("Time:  {}", play.elapsed()),
+                &format!("Score: {}", play.score()),
+            ],
         })
     }
 

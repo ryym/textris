@@ -1,22 +1,23 @@
-use coord::Dir;
 use play::Play;
-use std::io::{Bytes, Read, Write};
+use std::io::{self, Bytes, Read, Write};
 use std::iter;
 use std::thread;
 use std::time::Duration;
 use termion as tm;
 
-struct Modal<'a> {
+pub struct Modal<'a> {
     pub title: &'a str,
     pub content: Vec<&'a str>,
 }
+
+const TITLE: &'static str = "- T E X T R I S -";
+const FIELD_X: usize = 1;
+const FIELD_Y: usize = 3;
 
 pub struct Screen<R: Read, W: Write> {
     stdin: Bytes<R>,
     stdout: W,
 }
-
-const TITLE: &'static str = "- T E X T R I S -";
 
 impl<R, W> Screen<R, W>
 where
@@ -27,7 +28,11 @@ where
         Screen { stdin, stdout }
     }
 
-    pub fn start(&mut self) {
+    pub fn next_input(&mut self) -> Option<io::Result<u8>> {
+        self.stdin.next()
+    }
+
+    pub fn render_title(&mut self) {
         let interval = Duration::from_millis(32);
         for i in 0..(TITLE.len() + 1) {
             write!(
@@ -41,12 +46,9 @@ where
             self.stdout.flush().unwrap();
             thread::sleep(interval);
         }
-        thread::sleep(Duration::from_millis(800));
-
-        self.play(Play::new());
     }
 
-    pub fn play(&mut self, mut play: Play) {
+    pub fn render_header(&mut self) {
         write!(
             self.stdout,
             "{}{}{}{}",
@@ -62,70 +64,16 @@ where
             tm::cursor::Goto(1, 2),
             "(press '?' for help)"
         ).unwrap();
-
-        let interval = Duration::from_millis(50);
-        let mut t = 0;
-        loop {
-            match self.stdin.next() {
-                Some(Ok(key)) => match key {
-                    b'q' => break,
-                    b'h' => play.slide_piece(Dir::Left),
-                    b'l' => play.slide_piece(Dir::Right),
-                    b'j' => play.slide_piece(Dir::Down),
-                    b'd' => play.rotate_piece(false),
-                    b'f' => play.rotate_piece(true),
-                    b'?' => {
-                        self.show_modal(Modal {
-                            title: "HELP",
-                            content: vec![
-                                "h - Move left",
-                                "l - Move right",
-                                "j - Speed up",
-                                "d,f - Rotate",
-                                "q - Quit",
-                            ],
-                        });
-                    }
-                    _ => {}
-                },
-                _ => {}
-            }
-
-            if t % 10 == 0 {
-                match play.update() {
-                    Ok(_) => {}
-                    Err(_) => {
-                        self.show_modal(Modal {
-                            title: "play OVER",
-                            content: vec![&format!("Time: {}", play.elapsed())],
-                        });
-                        break;
-                    }
-                }
-            }
-
-            if t % 20 == 0 {
-                play.tick();
-            }
-
-            self.render(&play, 1, 3);
-            self.stdout.flush().unwrap();
-
-            thread::sleep(interval);
-            t += 1;
-        }
-
-        write!(self.stdout, "{}", tm::cursor::Show).unwrap();
     }
 
-    fn render(&mut self, play: &Play, x: usize, y: usize) {
+    pub fn render(&mut self, play: &Play) {
         let field = play.field();
 
         for (i, line) in field.lines_iter().enumerate() {
             write!(
                 self.stdout,
                 "{}|",
-                tm::cursor::Goto(x as u16, (i + y) as u16)
+                tm::cursor::Goto(FIELD_X as u16, (i + FIELD_Y) as u16)
             ).unwrap();
             for cell in line.iter() {
                 match cell {
@@ -139,8 +87,9 @@ where
         write!(
             self.stdout,
             "{}",
-            tm::cursor::Goto(x as u16, (field.height() + y) as u16)
+            tm::cursor::Goto(FIELD_X as u16, (field.height() + FIELD_Y) as u16)
         ).unwrap();
+
         let width = field.width();
         for floor in iter::repeat("--").take(width + 1) {
             write!(self.stdout, "{}", floor).unwrap();
@@ -149,12 +98,19 @@ where
         write!(
             self.stdout,
             "{}Time: {}",
-            tm::cursor::Goto((field.width() * 2 + 4) as u16, y as u16),
+            tm::cursor::Goto((field.width() * 2 + 4) as u16, FIELD_Y as u16),
             play.elapsed(),
         ).unwrap();
     }
 
-    fn show_modal(&mut self, modal: Modal) {
+    pub fn render_game_over(&mut self, play: &Play) {
+        self.show_modal(&Modal {
+            title: "GAME OVER",
+            content: vec![&format!("Time: {}", play.elapsed())],
+        });
+    }
+
+    pub fn show_modal(&mut self, modal: &Modal) {
         let border = "---------------------------------------";
         let cleared = iter::repeat(" ").take(border.len()).collect::<String>();
         let cleared_content = &cleared[1..cleared.len() - 1];
@@ -210,5 +166,15 @@ where
             }
             thread::sleep(interval);
         }
+    }
+}
+
+impl<R, W> Drop for Screen<R, W>
+where
+    R: Read,
+    W: Write,
+{
+    fn drop(&mut self) {
+        write!(self.stdout, "{}", tm::cursor::Show).unwrap();
     }
 }

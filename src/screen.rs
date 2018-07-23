@@ -5,6 +5,7 @@ use std::iter;
 use std::thread;
 use std::time::Duration;
 use termion as tm;
+use termion::cursor::Goto;
 
 pub struct Modal<'a> {
     pub title: &'a str,
@@ -33,40 +34,34 @@ where
         self.stdin.next()
     }
 
+    fn clear_screen(&mut self) -> Result<()> {
+        write!(
+            self.stdout,
+            "{}{}{}",
+            tm::clear::All,
+            Goto(1, 1),
+            tm::cursor::Hide
+        )?;
+        Ok(())
+    }
+
     pub fn render_title(&mut self) -> Result<()> {
+        self.clear_screen()?;
+
         let interval = Duration::from_millis(32);
         for i in 0..(TITLE.len() + 1) {
-            write!(
-                self.stdout,
-                "{}{}{}{}",
-                tm::clear::All,
-                tm::cursor::Goto(1, 1),
-                tm::cursor::Hide,
-                &TITLE[0..i],
-            )?;
+            write!(self.stdout, "{}{}", Goto(1, 1), &TITLE[0..i])?;
             self.stdout.flush()?;
             thread::sleep(interval);
         }
+
         Ok(())
     }
 
     pub fn render_header(&mut self) -> Result<()> {
-        write!(
-            self.stdout,
-            "{}{}{}{}",
-            tm::clear::All,
-            tm::cursor::Goto(1, 1),
-            tm::cursor::Hide,
-            TITLE,
-        )?;
-
-        write!(
-            self.stdout,
-            "{}{}",
-            tm::cursor::Goto(1, 2),
-            "(press '?' for help)"
-        )?;
-
+        self.clear_screen()?;
+        write!(self.stdout, "{}", TITLE)?;
+        write!(self.stdout, "{}{}", Goto(1, 2), "(press '?' for help)")?;
         Ok(())
     }
 
@@ -77,7 +72,7 @@ where
             write!(
                 self.stdout,
                 "{}|",
-                tm::cursor::Goto(FIELD_X as u16, (i + FIELD_Y) as u16)
+                Goto(FIELD_X as u16, (i + FIELD_Y) as u16)
             )?;
             for cell in line.iter() {
                 match cell {
@@ -91,7 +86,7 @@ where
         write!(
             self.stdout,
             "{}",
-            tm::cursor::Goto(FIELD_X as u16, (field.height() + FIELD_Y) as u16)
+            Goto(FIELD_X as u16, (field.height() + FIELD_Y) as u16)
         )?;
 
         let width = field.width();
@@ -99,13 +94,18 @@ where
             write!(self.stdout, "{}", floor)?;
         }
 
+        self.render_scores(&play, (field.width() * 2 + 4) as u16)?;
+
+        Ok(())
+    }
+
+    fn render_scores(&mut self, play: &Play, x: u16) -> Result<()> {
         write!(
             self.stdout,
             "{}Time: {}",
-            tm::cursor::Goto((field.width() * 2 + 4) as u16, FIELD_Y as u16),
-            play.elapsed(),
+            Goto(x, FIELD_Y as u16),
+            play.elapsed()
         )?;
-
         Ok(())
     }
 
@@ -124,44 +124,33 @@ where
         let mut y = y_start;
         let x = 3;
 
-        write!(self.stdout, "{}{}", tm::cursor::Goto(x, y), border)?;
+        write!(self.stdout, "{}{}", Goto(x, y), border)?;
+        y += 1;
+        write!(self.stdout, "{}|{}|", Goto(x, y), cleared_content)?;
+        write!(self.stdout, "{}{}", Goto(x + 2, y), modal.title)?;
         y += 1;
         write!(
             self.stdout,
             "{}|{}|",
-            tm::cursor::Goto(x, y),
-            cleared_content
-        )?;
-        write!(self.stdout, "{}{}", tm::cursor::Goto(x + 2, y), modal.title)?;
-        y += 1;
-        write!(
-            self.stdout,
-            "{}|{}|",
-            tm::cursor::Goto(x, y),
+            Goto(x, y),
             &border[1..border.len() - 1]
         )?;
 
         for line in modal.content.iter() {
             y += 1;
-            write!(
-                self.stdout,
-                "{}|{}|",
-                tm::cursor::Goto(x, y),
-                cleared_content
-            )?;
-            write!(self.stdout, "{}{}", tm::cursor::Goto(x + 2, y), line)?;
+            write!(self.stdout, "{}|{}|", Goto(x, y), cleared_content)?;
+            write!(self.stdout, "{}{}", Goto(x + 2, y), line)?;
         }
-        write!(self.stdout, "{}{}", tm::cursor::Goto(x, y + 1), border)?;
+        write!(self.stdout, "{}{}", Goto(x, y + 1), border)?;
 
         self.stdout.flush()?;
         self.wait_any_key_input(Duration::from_millis(50));
 
-        // y = y_start;
-        write!(self.stdout, "{}{}", tm::cursor::Goto(x, y_start), cleared)?;
+        write!(self.stdout, "{}{}", Goto(x, y_start), cleared)?;
         for y in y_start..=y {
-            write!(self.stdout, "{}{}", tm::cursor::Goto(x, y), cleared)?;
+            write!(self.stdout, "{}{}", Goto(x, y), cleared)?;
         }
-        write!(self.stdout, "{}{}", tm::cursor::Goto(x, y + 1), cleared)?;
+        write!(self.stdout, "{}{}", Goto(x, y + 1), cleared)?;
 
         Ok(())
     }

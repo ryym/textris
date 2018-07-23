@@ -4,5 +4,6 @@ name = "textris"
 version = "0.1.0"
 
 [dependencies]
+error-chain = "0.12.0"
 rand = "0.5.4"
 termion = "1.5.1"

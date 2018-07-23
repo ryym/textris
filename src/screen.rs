@@ -20,7 +20,6 @@ struct Modal<'a> {
 pub struct Screen<R: Read, W: Write> {
     stdin: Bytes<R>,
     stdout: W,
-    game: Game,
 }
 
 const TITLE: &'static str = "- T E X T R I S -";
@@ -30,12 +29,8 @@ where
     R: Read,
     W: Write,
 {
-    pub fn new(stdin: Bytes<R>, stdout: W, game: Game) -> Screen<R, W> {
-        Screen {
-            stdin,
-            stdout,
-            game,
-        }
+    pub fn new(stdin: Bytes<R>, stdout: W) -> Screen<R, W> {
+        Screen { stdin, stdout }
     }
 
     pub fn start(&mut self) {
@@ -54,10 +49,10 @@ where
         }
         thread::sleep(Duration::from_millis(800));
 
-        self.play();
+        self.play(Game::new());
     }
 
-    pub fn play(&mut self) {
+    pub fn play(&mut self, mut game: Game) {
         write!(
             self.stdout,
             "{}{}{}{}",
@@ -85,11 +80,11 @@ where
             match self.stdin.next() {
                 Some(Ok(key)) => match key {
                     b'q' => break,
-                    b'h' => self.game.slide_piece(Dir::Left),
-                    b'l' => self.game.slide_piece(Dir::Right),
-                    b'j' => self.game.slide_piece(Dir::Down),
-                    b'd' => self.game.rotate_piece(false),
-                    b'f' => self.game.rotate_piece(true),
+                    b'h' => game.slide_piece(Dir::Left),
+                    b'l' => game.slide_piece(Dir::Right),
+                    b'j' => game.slide_piece(Dir::Down),
+                    b'd' => game.rotate_piece(false),
+                    b'f' => game.rotate_piece(true),
                     b'?' => {
                         self.show_modal(Modal {
                             title: "HELP",
@@ -108,7 +103,7 @@ where
             }
 
             if t % 10 == 0 {
-                match self.game.tick() {
+                match game.tick() {
                     Ok(_) => {}
                     Err(_) => {
                         self.render_game_over();
@@ -123,7 +118,7 @@ where
                 state.elapsed.add_secs(1);
             }
 
-            self.render(&state);
+            self.render(&game, &state);
             self.stdout.flush().unwrap();
 
             thread::sleep(interval);
@@ -133,8 +128,8 @@ where
         write!(self.stdout, "{}", tm::cursor::Show).unwrap();
     }
 
-    fn render(&mut self, state: &State) {
-        let field = self.game.field();
+    fn render(&mut self, game: &Game, state: &State) {
+        let field = game.field();
         let Coord(x, y) = state.field_pos;
         let x = x as usize;
         let y = y as usize;

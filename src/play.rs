@@ -67,10 +67,13 @@ impl Play {
     }
 
     fn drop_tetro(&mut self) {
-        let random = &mut self.random;
-        self.tetro = random.random_tetro();
-        self.tetro_dir = random.random_tetro_dir();
-        self.piece_pos = random.random_piece_pos(self.field.width());
+        self.tetro = self.random.random_tetro();
+        self.tetro_dir = self.random.random_tetro_dir();
+        self.piece_pos = self.random.random_piece_pos(self.field.width());
+
+        let piece = self.make_piece();
+        let coords = piece.coords(self.piece_pos);
+        self.field.render_blocks(piece.block(), &coords);
     }
 
     pub fn field(&self) -> &Field {
@@ -94,16 +97,15 @@ impl Play {
         match self.move_piece(Dir::Down) {
             Ok(_) => {}
             Err(_) => {
-                self.drop_tetro();
-                self.tetro_stopped = true;
                 let n_deleted = self.delete_completed_lines();
-
-                // The score is just a number of deleted lines.
                 self.score += n_deleted;
 
                 if self.field.is_reached() {
                     return Err(());
                 }
+
+                self.drop_tetro();
+                self.tetro_stopped = true;
             }
         };
         Ok(())

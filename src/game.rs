@@ -33,7 +33,7 @@ where
                     "d,f - Rotate",
                     "q - Quit",
                 ],
-                actions: Some(&[Action::Ok, Action::Reset]),
+                actions: Some(&[Action::Ok, Action::Reset, Action::Quit]),
             },
         }
     }
@@ -55,25 +55,32 @@ where
     pub fn start(&mut self) -> Result<()> {
         self.screen.render_title()?;
         thread::sleep(Duration::from_millis(800));
-        self.play(Play::new())?;
+
+        let mut next = self.play(Play::new())?;
+        while next != Action::Quit {
+            next = self.play(Play::new())?;
+        }
         Ok(())
     }
 
-    fn play(&mut self, mut play: Play) -> Result<()> {
+    fn play(&mut self, mut play: Play) -> Result<Action> {
         self.screen.render_header()?;
 
         let interval = Duration::from_millis(FRAME);
         let mut t = 0;
         loop {
             match self.handle_user_input(&mut play)? {
-                Some(Action::Quit) => break,
+                Some(action) => {
+                    if action != Action::Ok {
+                        return Ok(action);
+                    }
+                }
                 _ => {}
             };
 
             if t % UPDATE == 0 {
                 if let Err(_) = play.update() {
-                    self.screen.render_game_over(&play)?;
-                    break;
+                    return self.screen.render_game_over(&play);
                 }
             }
             if t % TICK == 0 {
@@ -84,7 +91,6 @@ where
             thread::sleep(interval);
             t += 1;
         }
-        Ok(())
     }
 
     fn handle_user_input(&mut self, play: &mut Play) -> Result<Option<Action>> {
@@ -97,7 +103,9 @@ where
                 b'd' => play.rotate_piece(false),
                 b'f' => play.rotate_piece(true),
                 b'?' => {
-                    self.screen.show_modal(&self.help_modal)?;
+                    return self.screen
+                        .show_modal(&self.help_modal)
+                        .map(|action| Some(action));
                 }
                 _ => {}
             },

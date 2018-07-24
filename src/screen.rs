@@ -108,16 +108,15 @@ where
         Ok(())
     }
 
-    pub fn render_game_over(&mut self, play: &Play) -> Result<()> {
+    pub fn render_game_over(&mut self, play: &Play) -> Result<Action> {
         self.show_modal(&Modal {
             title: "GAME OVER",
             content: &[
                 &format!("Time:  {}", play.elapsed()),
                 &format!("Score: {}", play.score()),
             ],
-            actions: None,
-        })?;
-        Ok(())
+            actions: Some(&[Action::Retry, Action::Quit]),
+        })
     }
 
     pub fn show_modal(&mut self, modal: &Modal) -> Result<Action> {

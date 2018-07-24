@@ -1,3 +1,4 @@
+use action::Action;
 use coord::Dir;
 use errors::*;
 use play::Play;
@@ -5,10 +6,6 @@ use screen::{Modal, Screen};
 use std::io::{Read, Write};
 use std::thread;
 use std::time::Duration;
-
-pub enum Action {
-    Quit,
-}
 
 const FRAME: u64 = 50;
 const TICK: u64 = 1000 / FRAME;
@@ -36,6 +33,7 @@ where
                     "d,f - Rotate",
                     "q - Quit",
                 ],
+                actions: Some(&[Action::Ok, Action::Reset]),
             },
         }
     }
@@ -49,6 +47,7 @@ where
                     "details:",
                     &err.to_string(),
                 ],
+                actions: None,
             })
             .expect(&format!("show error dialog ({})", err));
     }
@@ -97,7 +96,9 @@ where
                 b'j' => play.slide_piece(Dir::Down),
                 b'd' => play.rotate_piece(false),
                 b'f' => play.rotate_piece(true),
-                b'?' => self.screen.show_modal(&self.help_modal)?,
+                b'?' => {
+                    self.screen.show_modal(&self.help_modal)?;
+                }
                 _ => {}
             },
             _ => {}

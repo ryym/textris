@@ -3,6 +3,7 @@ extern crate error_chain;
 extern crate rand;
 extern crate termion;
 
+pub mod action;
 pub mod coord;
 mod elapsed;
 mod errors;

@@ -1,3 +1,4 @@
+use action::Action;
 use errors::*;
 use play::Play;
 use std::io::{self, Bytes, Read, Write};
@@ -10,6 +11,7 @@ use termion::cursor::Goto;
 pub struct Modal<'a> {
     pub title: &'a str,
     pub content: &'a [&'a str],
+    pub actions: Option<&'a [Action]>,
 }
 
 const TITLE: &'static str = "- T E X T R I S -";
@@ -113,56 +115,102 @@ where
                 &format!("Time:  {}", play.elapsed()),
                 &format!("Score: {}", play.score()),
             ],
-        })
+            actions: None,
+        })?;
+        Ok(())
     }
 
-    pub fn show_modal(&mut self, modal: &Modal) -> Result<()> {
+    pub fn show_modal(&mut self, modal: &Modal) -> Result<Action> {
         let border = "---------------------------------------";
-        let cleared = iter::repeat(" ").take(border.len()).collect::<String>();
-        let cleared_content = &cleared[1..cleared.len() - 1];
+        let inner_border = format!("|{}|", &border[1..border.len() - 1]);
+        let back = iter::repeat(" ").take(border.len()).collect::<String>();
+        let inner_back = format!("|{}|", &back[1..back.len() - 1]);
         let y_start = 5;
         let mut y = y_start;
         let x = 3;
 
         write!(self.stdout, "{}{}", Goto(x, y), border)?;
         y += 1;
-        write!(self.stdout, "{}|{}|", Goto(x, y), cleared_content)?;
+        write!(self.stdout, "{}{}", Goto(x, y), inner_back)?;
         write!(self.stdout, "{}{}", Goto(x + 2, y), modal.title)?;
         y += 1;
-        write!(
-            self.stdout,
-            "{}|{}|",
-            Goto(x, y),
-            &border[1..border.len() - 1]
-        )?;
+        write!(self.stdout, "{}{}", Goto(x, y), inner_border)?;
+        y += 1;
 
         for line in modal.content.iter() {
-            y += 1;
-            write!(self.stdout, "{}|{}|", Goto(x, y), cleared_content)?;
+            write!(self.stdout, "{}{}", Goto(x, y), inner_back)?;
             write!(self.stdout, "{}{}", Goto(x + 2, y), line)?;
+            y += 1;
         }
-        write!(self.stdout, "{}{}", Goto(x, y + 1), border)?;
+
+        write!(self.stdout, "{}{}", Goto(x, y), inner_border)?;
+        y += 1;
+        write!(self.stdout, "{}{}", Goto(x, y), inner_back)?;
+
+        let y_actions = y;
+
+        let actions = match modal.actions {
+            Some(actions) => actions,
+            None => &[Action::Ok],
+        };
+        let mut select = 0;
+
+        let action_btns = self.write_inline_actions(&actions, select);
+        write!(self.stdout, "{}{}", Goto(x + 1, y_actions), action_btns)?;
+        y += 1;
+        write!(self.stdout, "{}{}", Goto(x, y), border)?;
 
         self.stdout.flush()?;
-        self.wait_any_key_input(Duration::from_millis(50));
 
-        write!(self.stdout, "{}{}", Goto(x, y_start), cleared)?;
-        for y in y_start..=y {
-            write!(self.stdout, "{}{}", Goto(x, y), cleared)?;
-        }
-        write!(self.stdout, "{}{}", Goto(x, y + 1), cleared)?;
-
-        Ok(())
-    }
-
-    fn wait_any_key_input(&mut self, interval: Duration) {
+        let interval = Duration::from_millis(50);
         loop {
             match self.stdin.next() {
-                Some(_) => break,
+                Some(Ok(key)) => match key {
+                    b'h' => {
+                        if select > 0 {
+                            select -= 1;
+                        }
+                    }
+                    b'l' => {
+                        if select < actions.len() - 1 {
+                            select += 1;
+                        }
+                    }
+                    13 => {
+                        break;
+                    }
+                    _ => {}
+                },
                 _ => {}
             }
+
+            let action_btns = self.write_inline_actions(&actions, select);
+            write!(self.stdout, "{}{}", Goto(x + 1, y_actions), action_btns)?;
+            self.stdout.flush()?;
             thread::sleep(interval);
         }
+
+        // Clear modal
+        write!(self.stdout, "{}{}", Goto(x, y_start), back)?;
+        for y in y_start..=y {
+            write!(self.stdout, "{}{}", Goto(x, y), back)?;
+        }
+
+        Ok(actions[select])
+    }
+
+    fn write_inline_actions(&self, actions: &[Action], select: usize) -> String {
+        actions
+            .iter()
+            .enumerate()
+            .map(|(i, a)| {
+                if i == select {
+                    format!(" [{:?}] ", a)
+                } else {
+                    format!("  {:?}  ", a)
+                }
+            })
+            .collect()
     }
 }
 

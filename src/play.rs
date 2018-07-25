@@ -1,4 +1,4 @@
-use coord::{Coord, Dir, Dirs};
+use coord::{Coord, Dir, Dirs, RotateDir};
 use elapsed::Elapsed;
 use field::Field;
 use piece::Piece;
@@ -121,11 +121,11 @@ impl Play {
         }
     }
 
-    pub fn rotate_piece(&mut self, clockwise: bool) {
+    pub fn rotate_piece(&mut self, rotate_dir: RotateDir) {
         let current_coords = self.make_piece().coords(self.piece_pos);
         self.field.clear_blocks(&current_coords);
 
-        let dir = self.tetro_dir.next_dir(clockwise);
+        let dir = rotate_dir.rotate(self.tetro_dir);
         let piece = self.tetro.make_piece(dir);
         let coords = piece.coords(self.piece_pos);
 

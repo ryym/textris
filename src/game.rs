@@ -1,5 +1,5 @@
 use action::Action;
-use coord::Dir;
+use coord::{Dir, RotateDir};
 use errors::*;
 use play::Play;
 use screen::{Modal, Screen};
@@ -100,8 +100,8 @@ where
                 b'h' => play.slide_piece(Dir::Left),
                 b'l' => play.slide_piece(Dir::Right),
                 b'j' => play.slide_piece(Dir::Down),
-                b'd' => play.rotate_piece(false),
-                b'f' => play.rotate_piece(true),
+                b'd' => play.rotate_piece(RotateDir::AntiClockwise),
+                b'f' => play.rotate_piece(RotateDir::Clockwise),
                 b'?' => {
                     return self.screen
                         .show_modal(&self.help_modal)

@@ -47,17 +47,12 @@ impl Dir {
         }
     }
 
-    pub fn next_dir(&self, clockwise: bool) -> Dir {
-        let dir = match self {
+    pub fn next_dir(&self) -> Dir {
+        match self {
             Dir::Up => Dir::Right,
             Dir::Right => Dir::Down,
             Dir::Down => Dir::Left,
             Dir::Left => Dir::Up,
-        };
-        if clockwise {
-            dir
-        } else {
-            dir.opponent()
         }
     }
 
@@ -74,5 +69,21 @@ impl Dir {
 impl Default for Dir {
     fn default() -> Self {
         Dir::Up
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum RotateDir {
+    Clockwise,
+    AntiClockwise,
+}
+
+impl RotateDir {
+    pub fn rotate(&self, dir: Dir) -> Dir {
+        let dir = dir.next_dir();
+        match self {
+            RotateDir::Clockwise => dir,
+            RotateDir::AntiClockwise => dir.opponent(),
+        }
     }
 }

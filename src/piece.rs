@@ -31,7 +31,12 @@ impl Piece {
         self.block
     }
 
-    pub fn coords(&self, base: Coord) -> Vec<Coord> {
-        self.coords.iter().map(|c| base + *c).collect()
+    pub fn coords(&self, base: Coord) -> PieceCoords {
+        [
+            base + self.coords[0],
+            base + self.coords[1],
+            base + self.coords[2],
+            base + self.coords[3],
+        ]
     }
 }

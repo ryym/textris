@@ -109,7 +109,8 @@ where
                 }
                 _ => {}
             },
-            _ => {}
+            Some(Err(err)) => return Err(err.into()),
+            None => {}
         };
         Ok(None)
     }

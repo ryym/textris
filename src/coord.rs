@@ -25,7 +25,7 @@ impl Default for Coord {
 
 pub type Dirs = [Dir; 4];
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Dir {
     Up,
     Right,
@@ -84,6 +84,52 @@ impl RotateDir {
         match self {
             RotateDir::Clockwise => dir,
             RotateDir::AntiClockwise => dir.opponent(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Dir::*;
+    use super::*;
+
+    #[test]
+    fn rotate_dir_rotate() {
+        struct Case<'a> {
+            title: &'a str,
+            rd: RotateDir,
+            dirs: (Dir, Dir),
+        }
+        let cases = [
+            Case {
+                title: "clockwise: Right -> Down",
+                rd: RotateDir::Clockwise,
+                dirs: (Right, Down),
+            },
+            Case {
+                title: "clockwise: Left -> Up",
+                rd: RotateDir::Clockwise,
+                dirs: (Left, Up),
+            },
+            Case {
+                title: "anti: Right -> Up",
+                rd: RotateDir::AntiClockwise,
+                dirs: (Right, Up),
+            },
+            Case {
+                title: "anti: Left -> Down",
+                rd: RotateDir::AntiClockwise,
+                dirs: (Left, Down),
+            },
+        ];
+
+        for Case {
+            title,
+            rd,
+            dirs: (from, to),
+        } in cases.iter()
+        {
+            assert_eq!(rd.rotate(*from), *to, "{}", title);
         }
     }
 }

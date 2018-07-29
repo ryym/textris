@@ -1,5 +1,6 @@
 use std::fmt;
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct Elapsed {
     hours: u64,
     minutes: u64,
@@ -30,5 +31,51 @@ impl fmt::Display for Elapsed {
             "{:02}:{:02}:{:02}",
             self.hours, self.minutes, self.seconds
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn elapsed_display() {
+        let e = Elapsed {
+            hours: 7,
+            minutes: 34,
+            seconds: 52,
+        };
+        assert_eq!(format!("{}", e), "07:34:52");
+    }
+
+    #[test]
+    fn elapsed_add_secs() {
+        struct Case {
+            secs: u64,
+            expected: Elapsed,
+        };
+        let cases = [
+            Case {
+                secs: 30,
+                expected: Elapsed {
+                    hours: 0,
+                    minutes: 0,
+                    seconds: 30,
+                },
+            },
+            Case {
+                secs: 5001,
+                expected: Elapsed {
+                    hours: 1,
+                    minutes: 23,
+                    seconds: 21,
+                },
+            },
+        ];
+        for (i, Case { secs, expected }) in cases.iter().enumerate() {
+            let mut e = Elapsed::new();
+            e.add_secs(*secs);
+            assert_eq!(e, *expected, "test[{}]", i);
+        }
     }
 }

@@ -204,9 +204,9 @@ where
             .enumerate()
             .map(|(i, a)| {
                 if i == select {
-                    format!(" [{:?}] ", a)
+                    format!(" [{}] ", a)
                 } else {
-                    format!("  {:?}  ", a)
+                    format!("  {}  ", a)
                 }
             })
             .collect()

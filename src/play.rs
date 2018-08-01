@@ -1,8 +1,9 @@
+use block::Block;
 use coord::{Coord, Dir, Dirs, RotateDir};
 use elapsed::Elapsed;
 use field::Field;
-use piece::Piece;
 use rand::{thread_rng, Rng, ThreadRng};
+use std::collections::HashMap;
 use tetromino::{Tetromino, Tetrominos};
 
 struct Random<R: Rng> {
@@ -41,6 +42,7 @@ where
 
 pub struct Play {
     random: Random<ThreadRng>,
+    block_map: HashMap<Tetromino, Block>,
     tetro: Tetromino,
     tetro_dir: Dir,
     tetro_stopped: bool,
@@ -52,8 +54,18 @@ pub struct Play {
 
 impl Play {
     pub fn new() -> Self {
+        let mut bm = HashMap::new();
+        bm.insert(Tetromino::I, Block { chr: 'I' });
+        bm.insert(Tetromino::J, Block { chr: 'J' });
+        bm.insert(Tetromino::L, Block { chr: 'L' });
+        bm.insert(Tetromino::O, Block { chr: 'O' });
+        bm.insert(Tetromino::S, Block { chr: 'S' });
+        bm.insert(Tetromino::T, Block { chr: 'T' });
+        bm.insert(Tetromino::Z, Block { chr: 'Z' });
+
         let mut play = Play {
             random: Random::new(thread_rng()),
+            block_map: bm,
             tetro: Tetromino::I, // temp
             tetro_dir: Default::default(),
             tetro_stopped: false,
@@ -71,9 +83,13 @@ impl Play {
         self.tetro_dir = self.random.random_tetro_dir();
         self.piece_pos = self.random.random_piece_pos(self.field.width());
 
-        let piece = self.make_piece();
-        let coords = piece.coords(self.piece_pos);
-        self.field.render_blocks(piece.block(), &coords);
+        let coords = self.tetro.make_coords(self.piece_pos, self.tetro_dir);
+        let block = self.block();
+        self.field.render_blocks(block, &coords);
+    }
+
+    fn block(&self) -> Block {
+        *self.block_map.get(&self.tetro).unwrap()
     }
 
     pub fn field(&self) -> &Field {
@@ -122,39 +138,35 @@ impl Play {
     }
 
     pub fn rotate_piece(&mut self, rotate_dir: RotateDir) {
-        let current_coords = self.make_piece().coords(self.piece_pos);
+        let current_coords = self.tetro.make_coords(self.piece_pos, self.tetro_dir);
         self.field.clear_blocks(&current_coords);
 
         let dir = rotate_dir.rotate(self.tetro_dir);
-        let piece = self.tetro.make_piece(dir);
-        let coords = piece.coords(self.piece_pos);
+        let coords = self.tetro.make_coords(self.piece_pos, dir);
+        let block = self.block();
 
         if self.field.is_movable(&coords) {
             self.tetro_dir = dir;
-            self.field.render_blocks(piece.block(), &coords);
+            self.field.render_blocks(block, &coords);
         } else {
-            self.field.render_blocks(piece.block(), &current_coords);
+            self.field.render_blocks(block, &current_coords);
         }
     }
 
-    fn make_piece(&self) -> Piece {
-        self.tetro.make_piece(self.tetro_dir)
-    }
-
     fn move_piece(&mut self, dir: Dir) -> Result<(), ()> {
-        let piece = self.make_piece();
-        let current_coords = piece.coords(self.piece_pos);
+        let current_coords = self.tetro.make_coords(self.piece_pos, self.tetro_dir);
         self.field.clear_blocks(&current_coords);
 
         let new_pos = self.piece_pos + dir.to_coord();
-        let coords = piece.coords(new_pos);
+        let coords = self.tetro.make_coords(new_pos, self.tetro_dir);
+        let block = self.block();
 
         if self.field.is_movable(&coords) {
-            self.field.render_blocks(piece.block(), &coords);
+            self.field.render_blocks(block, &coords);
             self.piece_pos = new_pos;
             Ok(())
         } else {
-            self.field.render_blocks(piece.block(), &current_coords);
+            self.field.render_blocks(block, &current_coords);
             Err(())
         }
     }

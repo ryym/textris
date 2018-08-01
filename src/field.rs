@@ -1,5 +1,5 @@
+use block::Block;
 use coord::Coord;
-use piece::Block;
 use std::iter;
 use std::ops::{Index, IndexMut};
 use std::slice::Iter;

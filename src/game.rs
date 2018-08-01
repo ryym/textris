@@ -97,11 +97,11 @@ where
         match self.screen.next_input() {
             Some(Ok(key)) => match key {
                 b'q' => return Ok(Some(Action::Quit)),
-                b'h' => play.slide_piece(Dir::Left),
-                b'l' => play.slide_piece(Dir::Right),
-                b'j' => play.slide_piece(Dir::Down),
-                b'd' => play.rotate_piece(RotateDir::AntiClockwise),
-                b'f' => play.rotate_piece(RotateDir::Clockwise),
+                b'h' => play.slide_tetro(Dir::Left),
+                b'l' => play.slide_tetro(Dir::Right),
+                b'j' => play.slide_tetro(Dir::Down),
+                b'd' => play.rotate_tetro(RotateDir::AntiClockwise),
+                b'f' => play.rotate_tetro(RotateDir::Clockwise),
                 b'?' => {
                     return self.screen
                         .show_modal(&self.help_modal)

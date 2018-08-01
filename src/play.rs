@@ -32,7 +32,7 @@ where
         *self.rng.choose(&self.dirs).unwrap()
     }
 
-    pub fn random_piece_pos(&mut self, width: usize) -> Coord {
+    pub fn random_tetro_pos(&mut self, width: usize) -> Coord {
         // In cases of some Tetrominos and its orientation,
         // we cannot put it at the leftmost or rightmost cell.
         let right_limit = width - 2;
@@ -46,7 +46,7 @@ pub struct Play {
     tetro: Tetromino,
     tetro_dir: Dir,
     tetro_stopped: bool,
-    piece_pos: Coord,
+    tetro_pos: Coord,
     field: Field,
     elapsed: Elapsed,
     score: u64,
@@ -69,7 +69,7 @@ impl Play {
             tetro: Tetromino::I, // temp
             tetro_dir: Default::default(),
             tetro_stopped: false,
-            piece_pos: Default::default(),
+            tetro_pos: Default::default(),
             field: Field::new(16, 16),
             elapsed: Elapsed::new(),
             score: 0,
@@ -81,9 +81,9 @@ impl Play {
     fn drop_tetro(&mut self) {
         self.tetro = self.random.random_tetro();
         self.tetro_dir = self.random.random_tetro_dir();
-        self.piece_pos = self.random.random_piece_pos(self.field.width());
+        self.tetro_pos = self.random.random_tetro_pos(self.field.width());
 
-        let coords = self.tetro.make_coords(self.piece_pos, self.tetro_dir);
+        let coords = self.tetro.make_coords(self.tetro_pos, self.tetro_dir);
         let block = self.block();
         self.field.render_blocks(block, &coords);
     }
@@ -110,7 +110,7 @@ impl Play {
             return Ok(());
         }
 
-        match self.move_piece(Dir::Down) {
+        match self.move_tetro(Dir::Down) {
             Ok(_) => {}
             Err(_) => {
                 let n_deleted = self.delete_completed_lines();
@@ -131,18 +131,18 @@ impl Play {
         self.elapsed.add_secs(1);
     }
 
-    pub fn slide_piece(&mut self, dir: Dir) {
+    pub fn slide_tetro(&mut self, dir: Dir) {
         if dir != Dir::Up {
-            let _ = self.move_piece(dir);
+            let _ = self.move_tetro(dir);
         }
     }
 
-    pub fn rotate_piece(&mut self, rotate_dir: RotateDir) {
-        let current_coords = self.tetro.make_coords(self.piece_pos, self.tetro_dir);
+    pub fn rotate_tetro(&mut self, rotate_dir: RotateDir) {
+        let current_coords = self.tetro.make_coords(self.tetro_pos, self.tetro_dir);
         self.field.clear_blocks(&current_coords);
 
         let dir = rotate_dir.rotate(self.tetro_dir);
-        let coords = self.tetro.make_coords(self.piece_pos, dir);
+        let coords = self.tetro.make_coords(self.tetro_pos, dir);
         let block = self.block();
 
         if self.field.is_movable(&coords) {
@@ -153,17 +153,17 @@ impl Play {
         }
     }
 
-    fn move_piece(&mut self, dir: Dir) -> Result<(), ()> {
-        let current_coords = self.tetro.make_coords(self.piece_pos, self.tetro_dir);
+    fn move_tetro(&mut self, dir: Dir) -> Result<(), ()> {
+        let current_coords = self.tetro.make_coords(self.tetro_pos, self.tetro_dir);
         self.field.clear_blocks(&current_coords);
 
-        let new_pos = self.piece_pos + dir.to_coord();
+        let new_pos = self.tetro_pos + dir.to_coord();
         let coords = self.tetro.make_coords(new_pos, self.tetro_dir);
         let block = self.block();
 
         if self.field.is_movable(&coords) {
             self.field.render_blocks(block, &coords);
-            self.piece_pos = new_pos;
+            self.tetro_pos = new_pos;
             Ok(())
         } else {
             self.field.render_blocks(block, &current_coords);

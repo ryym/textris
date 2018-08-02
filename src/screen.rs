@@ -85,16 +85,11 @@ where
             )?;
             for cell in line.iter() {
                 match cell {
-                    Some(block) => write!(self.stdout, "{}{} ", color::Fg(block.color), block.chr),
+                    Some(block) => write!(self.stdout, "{} ", block),
                     None => write!(self.stdout, "  "),
                 }?;
             }
-            write!(
-                self.stdout,
-                "{}{}|",
-                color::Fg(color::Reset),
-                color::Bg(color::Reset)
-            )?;
+            write!(self.stdout, "{}|", color::Bg(color::Reset))?;
         }
 
         write!(

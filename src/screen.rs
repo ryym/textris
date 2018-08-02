@@ -6,6 +6,7 @@ use std::iter;
 use std::thread;
 use std::time::Duration;
 use termion as tm;
+use termion::color;
 use termion::cursor::Goto;
 
 pub struct Modal<'a> {
@@ -77,7 +78,13 @@ where
             )?;
             for cell in line.iter() {
                 match cell {
-                    Some(block) => write!(self.stdout, "{} ", block.chr),
+                    Some(block) => write!(
+                        self.stdout,
+                        "{}{}{} ",
+                        color::Fg(block.color),
+                        block.chr,
+                        color::Fg(color::Reset)
+                    ),
                     None => write!(self.stdout, "  "),
                 }?;
             }

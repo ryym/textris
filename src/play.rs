@@ -55,13 +55,13 @@ pub struct Play {
 impl Play {
     pub fn new() -> Self {
         let mut bm = HashMap::new();
-        bm.insert(Tetromino::I, Block { chr: 'I' });
-        bm.insert(Tetromino::J, Block { chr: 'J' });
-        bm.insert(Tetromino::L, Block { chr: 'L' });
-        bm.insert(Tetromino::O, Block { chr: 'O' });
-        bm.insert(Tetromino::S, Block { chr: 'S' });
-        bm.insert(Tetromino::T, Block { chr: 'T' });
-        bm.insert(Tetromino::Z, Block { chr: 'Z' });
+        bm.insert(Tetromino::I, Block::new('I'));
+        bm.insert(Tetromino::J, Block::new('J'));
+        bm.insert(Tetromino::L, Block::new('L'));
+        bm.insert(Tetromino::O, Block::new('O'));
+        bm.insert(Tetromino::S, Block::new('S'));
+        bm.insert(Tetromino::T, Block::new('T'));
+        bm.insert(Tetromino::Z, Block::new('Z'));
 
         let mut play = Play {
             random: Random::new(thread_rng()),

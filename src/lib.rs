@@ -5,6 +5,7 @@ extern crate termion;
 
 pub mod action;
 mod block;
+mod color;
 pub mod coord;
 mod elapsed;
 mod errors;

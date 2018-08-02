@@ -40,8 +40,10 @@ impl Tetromino {
 
         match self {
             Tetromino::I => match dir {
-                Up | Down => [Coord(0, 0), Coord(0, 1), Coord(0, 2), Coord(0, 3)],
-                Left | Right => [Coord(0, 0), Coord(1, 0), Coord(2, 0), Coord(3, 0)],
+                Up => [Coord(0, -2), Coord(0, -1), Coord(0, 0), Coord(0, 1)],
+                Right => [Coord(-1, 0), Coord(0, 0), Coord(1, 0), Coord(2, 0)],
+                Down => [Coord(0, -1), Coord(0, 0), Coord(0, 1), Coord(0, 2)],
+                Left => [Coord(1, 0), Coord(0, 0), Coord(-1, 0), Coord(-2, 0)],
             },
 
             Tetromino::J => match dir {

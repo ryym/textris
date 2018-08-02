@@ -33,10 +33,7 @@ where
     }
 
     pub fn random_tetro_pos(&mut self, width: usize) -> Coord {
-        // In cases of some Tetrominos and its orientation,
-        // we cannot put it at the leftmost or rightmost cell.
-        let right_limit = width - 2;
-        Coord(self.rng.gen_range(2, right_limit as i8), 0)
+        Coord(self.rng.gen_range(0, width as i8), 0)
     }
 }
 
@@ -82,9 +79,24 @@ impl Play {
         self.tetro_dir = self.random.random_tetro_dir();
         self.tetro_pos = self.random.random_tetro_pos(self.field.width());
 
-        let coords = self.tetro.make_coords(self.tetro_pos, self.tetro_dir);
-        let block = self.block();
-        self.field.render_blocks(block, &coords);
+        let dir = if self.tetro_pos.0 < (self.field.width() as i8) / 2 {
+            Dir::Right
+        } else {
+            Dir::Left
+        };
+        let adjustment = dir.to_coord();
+
+        // Find renderable position.
+        loop {
+            let coords = self.tetro.make_coords(self.tetro_pos, self.tetro_dir);
+            if self.field.is_movable(&coords) {
+                let block = self.block();
+                self.field.render_blocks(block, &coords);
+                break;
+            } else {
+                self.tetro_pos += adjustment;
+            }
+        }
     }
 
     fn block(&self) -> Block {

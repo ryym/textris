@@ -41,10 +41,14 @@ impl Field {
         0 <= pos.0 && pos.0 < w && 0 <= pos.1 && pos.1 < h
     }
 
+    pub fn is_above_ceil(&self, pos: Coord) -> bool {
+        pos.1 < 0 && 0 <= pos.0 && pos.0 < self.width as i8
+    }
+
     pub fn is_movable(&self, coords: &[Coord]) -> bool {
         coords
             .iter()
-            .all(|&c| self.is_in_range(c) && self[c].is_none())
+            .all(|&c| self.is_above_ceil(c) || self.is_in_range(c) && self[c].is_none())
     }
 
     pub fn is_reached(&self) -> bool {
@@ -52,14 +56,18 @@ impl Field {
     }
 
     pub fn clear_blocks(&mut self, coords: &[Coord]) {
-        for pos in coords {
-            self[*pos] = None;
+        for &pos in coords {
+            if self.is_in_range(pos) {
+                self[pos] = None;
+            }
         }
     }
 
     pub fn render_blocks(&mut self, block: Block, coords: &[Coord]) {
-        for pos in coords {
-            self[*pos] = Some(block);
+        for &pos in coords {
+            if self.is_in_range(pos) {
+                self[pos] = Some(block);
+            }
         }
     }
 

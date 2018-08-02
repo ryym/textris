@@ -41,6 +41,7 @@ pub struct Play {
     random: Random<ThreadRng>,
     block_map: HashMap<Tetromino, Block>,
     tetro: Tetromino,
+    next_tetro: Tetromino,
     tetro_dir: Dir,
     tetro_stopped: bool,
     tetro_pos: Coord,
@@ -51,10 +52,14 @@ pub struct Play {
 
 impl Play {
     pub fn new() -> Self {
+        let mut random = Random::new(thread_rng());
+        let next_tetro = random.random_tetro();
+
         let mut play = Play {
-            random: Random::new(thread_rng()),
+            random,
             block_map: Play::default_block_map(),
             tetro: Tetromino::I, // temp
+            next_tetro,
             tetro_dir: Default::default(),
             tetro_stopped: false,
             tetro_pos: Default::default(),
@@ -75,7 +80,8 @@ impl Play {
     }
 
     fn drop_tetro(&mut self) {
-        self.tetro = self.random.random_tetro();
+        self.tetro = self.next_tetro;
+        self.next_tetro = self.random.random_tetro();
         self.tetro_dir = self.random.random_tetro_dir();
         self.tetro_pos = self.random.random_tetro_pos(self.field.width());
 
@@ -101,6 +107,10 @@ impl Play {
 
     fn block(&self) -> Block {
         *self.block_map.get(&self.tetro).unwrap()
+    }
+
+    pub fn next_tetro_hint(&self) -> Block {
+        *self.block_map.get(&self.next_tetro).unwrap()
     }
 
     pub fn field(&self) -> &Field {

@@ -99,7 +99,7 @@ where
         )?;
 
         let width = field.width();
-        for floor in iter::repeat("--").take(width + 1) {
+        for floor in iter::repeat("==").take(width + 1) {
             write!(self.stdout, "{}", floor)?;
         }
 
@@ -110,9 +110,12 @@ where
 
     fn render_side_menu(&mut self, play: &Play, x: u16) -> Result<()> {
         let y = FIELD_Y as u16;
-        write!(self.stdout, "{}{}", Goto(x, y), "?: Help")?;
-        write!(self.stdout, "{}Time:  {}", Goto(x, y + 2), play.elapsed())?;
-        write!(self.stdout, "{}Score: {}", Goto(x, y + 3), play.score())?;
+
+        let next_block = play.next_tetro_hint();
+        write!(self.stdout, "{}Next: {}", Goto(x, y), next_block)?;
+        write!(self.stdout, "{}{}", Goto(x, y + 2), "?: Help")?;
+        write!(self.stdout, "{}Time:  {}", Goto(x, y + 4), play.elapsed())?;
+        write!(self.stdout, "{}Score: {}", Goto(x, y + 5), play.score())?;
         Ok(())
     }
 

@@ -83,16 +83,31 @@ impl Tetromino {
         }
     }
 
-    pub fn default_block(&self) -> Block {
+    pub fn default_char(&self) -> char {
         use tetromino::Tetromino::*;
         match self {
-            I => Block::new('I', Color::red()),
-            J => Block::new('J', Color::blue()),
-            L => Block::new('L', Color::light_red()),
-            O => Block::new('O', Color::yellow()),
-            S => Block::new('S', Color::magenta()),
-            T => Block::new('T', Color::light_blue()),
-            Z => Block::new('Z', Color::green()),
+            I => 'I',
+            J => 'J',
+            L => 'L',
+            O => 'O',
+            S => 'S',
+            T => 'T',
+            Z => 'Z',
+        }
+    }
+
+    pub fn default_block(&self) -> Block {
+        use tetromino::Tetromino::*;
+
+        let chr = self.default_char();
+        match self {
+            I => Block::new(chr, Color::red()),
+            J => Block::new(chr, Color::blue()),
+            L => Block::new(chr, Color::light_red()),
+            O => Block::new(chr, Color::yellow()),
+            S => Block::new(chr, Color::magenta()),
+            T => Block::new(chr, Color::light_blue()),
+            Z => Block::new(chr, Color::green()),
         }
     }
 }

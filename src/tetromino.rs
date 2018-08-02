@@ -1,6 +1,10 @@
+use block::Block;
+use color::Color;
 use coord::{Coord, Dir};
 
-pub type Tetrominos = [Tetromino; 7];
+pub const N_TETROS: usize = 7;
+
+pub type Tetrominos = [Tetromino; N_TETROS];
 
 pub type TetroCoords = [Coord; 4];
 
@@ -74,6 +78,19 @@ impl Tetromino {
                 Down => [Coord(0, 0), Coord(-1, 0), Coord(1, 0), Coord(0, 1)],
                 Left => [Coord(0, 0), Coord(0, 1), Coord(-1, 1), Coord(0, 2)],
             },
+        }
+    }
+
+    pub fn default_block(&self) -> Block {
+        use tetromino::Tetromino::*;
+        match self {
+            I => Block::new('I', Color::red()),
+            J => Block::new('J', Color::blue()),
+            L => Block::new('L', Color::light_red()),
+            O => Block::new('O', Color::yellow()),
+            S => Block::new('S', Color::magenta()),
+            T => Block::new('T', Color::light_blue()),
+            Z => Block::new('Z', Color::green()),
         }
     }
 }

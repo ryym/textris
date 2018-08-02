@@ -1,11 +1,10 @@
 use block::Block;
-use color::Color;
 use coord::{Coord, Dir, Dirs, RotateDir};
 use elapsed::Elapsed;
 use field::Field;
 use rand::{thread_rng, Rng, ThreadRng};
 use std::collections::HashMap;
-use tetromino::{Tetromino, Tetrominos};
+use tetromino::{Tetromino, Tetrominos, N_TETROS};
 
 struct Random<R: Rng> {
     rng: R,
@@ -55,18 +54,9 @@ pub struct Play {
 
 impl Play {
     pub fn new() -> Self {
-        let mut bm = HashMap::new();
-        bm.insert(Tetromino::I, Block::new('I', Color::red()));
-        bm.insert(Tetromino::J, Block::new('J', Color::blue()));
-        bm.insert(Tetromino::L, Block::new('L', Color::light_red()));
-        bm.insert(Tetromino::O, Block::new('O', Color::yellow()));
-        bm.insert(Tetromino::S, Block::new('S', Color::magenta()));
-        bm.insert(Tetromino::T, Block::new('T', Color::light_blue()));
-        bm.insert(Tetromino::Z, Block::new('Z', Color::green()));
-
         let mut play = Play {
             random: Random::new(thread_rng()),
-            block_map: bm,
+            block_map: Play::default_block_map(),
             tetro: Tetromino::I, // temp
             tetro_dir: Default::default(),
             tetro_stopped: false,
@@ -77,6 +67,14 @@ impl Play {
         };
         play.drop_tetro();
         play
+    }
+
+    fn default_block_map() -> HashMap<Tetromino, Block> {
+        let bm = HashMap::with_capacity(N_TETROS);
+        Tetromino::all().into_iter().fold(bm, |mut bm, &t| {
+            bm.insert(t, t.default_block());
+            bm
+        })
     }
 
     fn drop_tetro(&mut self) {

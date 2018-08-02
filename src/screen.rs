@@ -1,4 +1,5 @@
 use action::Action;
+use color::Color;
 use errors::*;
 use play::Play;
 use std::io::{self, Bytes, Read, Write};
@@ -22,6 +23,7 @@ const FIELD_Y: usize = 3;
 pub struct Screen<R: Read, W: Write> {
     stdin: Bytes<R>,
     stdout: W,
+    field_bg: Color,
 }
 
 impl<R, W> Screen<R, W>
@@ -30,7 +32,11 @@ where
     W: Write,
 {
     pub fn new(stdin: Bytes<R>, stdout: W) -> Screen<R, W> {
-        Screen { stdin, stdout }
+        Screen {
+            stdin,
+            stdout,
+            field_bg: Color::black(),
+        }
     }
 
     pub fn next_input(&mut self) -> Option<io::Result<u8>> {
@@ -73,22 +79,22 @@ where
         for (i, line) in field.lines_iter().enumerate() {
             write!(
                 self.stdout,
-                "{}|",
-                Goto(FIELD_X as u16, (i + FIELD_Y) as u16)
+                "{}|{}",
+                Goto(FIELD_X as u16, (i + FIELD_Y) as u16),
+                color::Bg(self.field_bg),
             )?;
             for cell in line.iter() {
                 match cell {
-                    Some(block) => write!(
-                        self.stdout,
-                        "{}{}{} ",
-                        color::Fg(block.color),
-                        block.chr,
-                        color::Fg(color::Reset)
-                    ),
+                    Some(block) => write!(self.stdout, "{}{} ", color::Fg(block.color), block.chr),
                     None => write!(self.stdout, "  "),
                 }?;
             }
-            write!(self.stdout, "|")?;
+            write!(
+                self.stdout,
+                "{}{}|",
+                color::Fg(color::Reset),
+                color::Bg(color::Reset)
+            )?;
         }
 
         write!(

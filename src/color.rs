@@ -11,12 +11,14 @@ pub enum Color {
     Red(tmc::Red),
     Blue(tmc::Blue),
     Yellow(tmc::Yellow),
-    LightBlue(tmc::LightBlue),
     Green(tmc::Green),
-    LightRed(tmc::LightRed),
     Cyan(tmc::Cyan),
+    Magenta(tmc::Magenta),
+    LightBlue(tmc::LightBlue),
+    LightRed(tmc::LightRed),
     LightMagenta(tmc::LightMagenta),
     Rgb(tmc::Rgb),
+    Black(tmc::Black),
 }
 
 impl Color {
@@ -36,7 +38,15 @@ impl Color {
         Yellow(tmc::Yellow)
     }
 
-    pub fn light_magenda() -> Color {
+    pub fn magenta() -> Color {
+        Magenta(tmc::Magenta)
+    }
+
+    pub fn light_red() -> Color {
+        LightRed(tmc::LightRed)
+    }
+
+    pub fn light_magenta() -> Color {
         LightMagenta(tmc::LightMagenta)
     }
 
@@ -51,6 +61,10 @@ impl Color {
     pub fn orange() -> Color {
         Color::rgb(255, 165, 0)
     }
+
+    pub fn black() -> Color {
+        Color::Black(tmc::Black)
+    }
 }
 
 impl tmc::Color for Color {
@@ -63,8 +77,10 @@ impl tmc::Color for Color {
             Green(c) => c.write_fg(f),
             LightRed(c) => c.write_fg(f),
             Cyan(c) => c.write_fg(f),
+            Magenta(c) => c.write_fg(f),
             LightMagenta(c) => c.write_fg(f),
             Rgb(c) => c.write_fg(f),
+            Black(c) => c.write_fg(f),
         }
     }
 
@@ -77,8 +93,10 @@ impl tmc::Color for Color {
             Green(c) => c.write_bg(f),
             LightRed(c) => c.write_bg(f),
             Cyan(c) => c.write_bg(f),
+            Magenta(c) => c.write_bg(f),
             LightMagenta(c) => c.write_bg(f),
             Rgb(c) => c.write_bg(f),
+            Black(c) => c.write_bg(f),
         }
     }
 }

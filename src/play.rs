@@ -58,9 +58,9 @@ impl Play {
         let mut bm = HashMap::new();
         bm.insert(Tetromino::I, Block::new('I', Color::red()));
         bm.insert(Tetromino::J, Block::new('J', Color::blue()));
-        bm.insert(Tetromino::L, Block::new('L', Color::orange()));
+        bm.insert(Tetromino::L, Block::new('L', Color::light_red()));
         bm.insert(Tetromino::O, Block::new('O', Color::yellow()));
-        bm.insert(Tetromino::S, Block::new('S', Color::light_magenda()));
+        bm.insert(Tetromino::S, Block::new('S', Color::magenta()));
         bm.insert(Tetromino::T, Block::new('T', Color::light_blue()));
         bm.insert(Tetromino::Z, Block::new('Z', Color::green()));
 

@@ -7,14 +7,7 @@ pub struct Block {
 }
 
 impl Block {
-    pub fn new(chr: char) -> Self {
-        Block {
-            chr,
-            color: if chr < 'O' {
-                Color::red()
-            } else {
-                Color::blue()
-            },
-        }
+    pub fn new(chr: char, color: Color) -> Self {
+        Block { chr, color }
     }
 }

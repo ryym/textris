@@ -12,7 +12,7 @@ jobs:
       - restore_cache:
           key: cargo-install
 
-      - run: cargo install
+      - run: cargo test
 
       - save_cache:
           key: cargo-install

@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: rust:latest
+    steps:
+      - run: rustup --version
+      - run: cargo --version
+
+      - checkout
+
+      - restore_cache:
+          key: cargo-install
+
+      - run: cargo install
+
+      - save_cache:
+          key: cargo-install
+          paths:
+            - "~/.cargo"

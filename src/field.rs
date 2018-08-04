@@ -75,6 +75,16 @@ impl Field {
         self.cells.iter()
     }
 
+    pub fn get_line(&self, y: usize) -> &Line {
+        &self.cells[y]
+    }
+
+    pub fn set_line(&mut self, y: usize, line: Line) {
+        if y < self.height {
+            self.cells[y] = line;
+        }
+    }
+
     pub fn delete_line(&mut self, idx: usize) {
         self.cells.remove(idx);
         self.cells.insert(0, make_line(self.width));

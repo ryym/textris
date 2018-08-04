@@ -50,6 +50,7 @@ define_color! {
     Cyan => cyan,
     Magenta => magenta,
     Black => black,
+    White => white,
     LightBlue => light_blue,
     LightRed => light_red,
     LightMagenta => light_magenta,

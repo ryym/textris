@@ -1,4 +1,5 @@
 use block::Block;
+use color::Color;
 use coord::{Coord, Dir, Dirs, RotateDir};
 use elapsed::Elapsed;
 use field::Field;
@@ -45,9 +46,10 @@ pub struct Play {
     tetro_dir: Dir,
     tetro_stopped: bool,
     tetro_pos: Coord,
+    deletables: Option<Vec<usize>>,
     field: Field,
     elapsed: Elapsed,
-    score: u64,
+    score: usize,
 }
 
 impl Play {
@@ -63,6 +65,7 @@ impl Play {
             tetro_dir: Default::default(),
             tetro_stopped: false,
             tetro_pos: Default::default(),
+            deletables: None,
             field: Field::new(16, 16),
             elapsed: Elapsed::new(),
             score: 0,
@@ -121,11 +124,20 @@ impl Play {
         &self.elapsed
     }
 
-    pub fn score(&self) -> u64 {
+    pub fn score(&self) -> usize {
         self.score
     }
 
     pub fn update(&mut self) -> Result<(), ()> {
+        if let Some(deletables) = self.deletables.take() {
+            for &i in deletables.iter() {
+                self.field.delete_line(i);
+            }
+            self.score += deletables.len();
+            self.deletables = None;
+            self.drop_tetro();
+        }
+
         if self.tetro_stopped {
             self.tetro_stopped = false;
             return Ok(());
@@ -134,15 +146,19 @@ impl Play {
         match self.move_tetro(Dir::Down) {
             Ok(_) => {}
             Err(_) => {
-                let n_deleted = self.delete_completed_lines();
-                self.score += n_deleted;
-
                 if self.field.is_reached() {
                     return Err(());
                 }
 
-                self.drop_tetro();
                 self.tetro_stopped = true;
+                match self.mark_deletable_lines() {
+                    None => {
+                        self.drop_tetro();
+                    }
+                    some => {
+                        self.deletables = some;
+                    }
+                };
             }
         };
         Ok(())
@@ -192,7 +208,7 @@ impl Play {
         }
     }
 
-    fn delete_completed_lines(&mut self) -> u64 {
+    fn mark_deletable_lines(&mut self) -> Option<Vec<usize>> {
         let targets: Vec<usize> = self.field
             .lines_iter()
             .enumerate()
@@ -200,10 +216,13 @@ impl Play {
             .map(|(i, _line)| i)
             .collect();
 
-        for &i in targets.iter() {
-            self.field.delete_line(i);
+        for &y in targets.iter() {
+            let marked_line = (0..self.field.width())
+                .map(|_| Some(Block::new('X', Color::white())))
+                .collect();
+            self.field.set_line(y, marked_line);
         }
 
-        targets.len() as u64
+        Some(targets)
     }
 }

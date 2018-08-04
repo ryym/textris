@@ -41,7 +41,7 @@ impl Field {
         0 <= pos.0 && pos.0 < w && 0 <= pos.1 && pos.1 < h
     }
 
-    pub fn is_above_ceil(&self, pos: Coord) -> bool {
+    fn is_above_ceil(&self, pos: Coord) -> bool {
         pos.1 < 0 && 0 <= pos.0 && pos.0 < self.width as i8
     }
 

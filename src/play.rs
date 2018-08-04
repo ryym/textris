@@ -191,6 +191,10 @@ impl Play {
     }
 
     fn move_tetro(&mut self, dir: Dir) -> Result<(), ()> {
+        if self.tetro_stopped {
+            return Ok(());
+        }
+
         let current_coords = self.tetro.make_coords(self.tetro_pos, self.tetro_dir);
         self.field.clear_blocks(&current_coords);
 

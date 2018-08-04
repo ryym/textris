@@ -1,7 +1,21 @@
 use std::ops::{Add, AddAssign};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy)]
 pub struct Coord(pub i8, pub i8);
+
+impl Coord {
+    pub fn new(x: i8, y: i8) -> Self {
+        Coord(x, y)
+    }
+
+    pub fn x(&self) -> i8 {
+        self.0
+    }
+
+    pub fn y(&self) -> i8 {
+        self.1
+    }
+}
 
 impl Add for Coord {
     type Output = Self;

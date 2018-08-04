@@ -88,7 +88,7 @@ impl Play {
         self.tetro_dir = self.random.random_tetro_dir();
         self.tetro_pos = self.random.random_tetro_pos(self.field.width());
 
-        let dir = if self.tetro_pos.0 < (self.field.width() as i8) / 2 {
+        let dir = if self.tetro_pos.x() < (self.field.width() as i8) / 2 {
             Dir::Right
         } else {
             Dir::Left
@@ -213,7 +213,8 @@ impl Play {
     }
 
     fn mark_deletable_lines(&mut self) -> Option<Vec<usize>> {
-        let targets: Vec<usize> = self.field
+        let targets: Vec<usize> = self
+            .field
             .lines_iter()
             .enumerate()
             .filter(|(_i, line)| line.iter().all(|cell| cell.is_some()))

@@ -1,3 +1,5 @@
+//! Textris is a hobby project to play tetris on your terminal.
+
 #[macro_use]
 extern crate error_chain;
 extern crate rand;

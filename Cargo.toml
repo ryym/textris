@@ -1,7 +1,12 @@
 [package]
-authors = ["ryym <ryym.64@gmail.com>"]
 name = "textris"
 version = "0.1.0"
+authors = ["ryym <ryym.64@gmail.com>"]
+license = "MIT OR Apache-2.0"
+description = "Tetris on terminal!"
+repository = "https://github.com/ryym/textris"
+keywords = ["tetris"]
+categories = ["games"]
 
 [dependencies]
 error-chain = "0.12.0"

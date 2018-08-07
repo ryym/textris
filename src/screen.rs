@@ -1,14 +1,16 @@
 use action::Action;
 use color::Color;
 use errors::*;
+use inputs::Inputs;
 use play::Play;
-use std::io::{self, Bytes, Read, Write};
+use std::io::{self, Write};
 use std::iter;
 use std::thread;
 use std::time::Duration;
 use termion as tm;
 use termion::color;
 use termion::cursor::Goto;
+use termion::event::{Event, Key};
 
 pub struct Modal<'a> {
     pub title: &'a str,
@@ -20,27 +22,26 @@ const TITLE: &'static str = "- T E X T R I S -";
 const FIELD_X: usize = 1;
 const FIELD_Y: usize = 3;
 
-pub struct Screen<R: Read, W: Write> {
-    stdin: Bytes<R>,
+pub struct Screen<W: Write> {
+    inputs: Inputs,
     stdout: W,
     field_bg: Color,
 }
 
-impl<R, W> Screen<R, W>
-where
-    R: Read,
-    W: Write,
-{
-    pub fn new(stdin: Bytes<R>, stdout: W) -> Screen<R, W> {
+impl<W: Write> Screen<W> {
+    pub fn new(inputs: Inputs, stdout: W) -> Screen<W> {
         Screen {
-            stdin,
+            inputs,
             stdout,
             field_bg: Color::black(),
         }
     }
 
     pub fn next_input(&mut self) -> Option<io::Result<u8>> {
-        self.stdin.next()
+        match self.inputs.try_recv() {
+            Some(Ok(Event::Key(Key::Char(c)))) => Some(Ok(c as u8)),
+            _ => None,
+        }
     }
 
     fn clear_screen(&mut self) -> Result<()> {
@@ -174,7 +175,7 @@ where
 
         let interval = Duration::from_millis(50);
         loop {
-            match self.stdin.next() {
+            match self.next_input() {
                 Some(Ok(key)) => match key {
                     b'h' => {
                         if select > 0 {
@@ -186,7 +187,7 @@ where
                             select += 1;
                         }
                     }
-                    13 | b'q' => {
+                    b'\n' | b'q' => {
                         break;
                     }
                     _ => {}
@@ -224,11 +225,7 @@ where
     }
 }
 
-impl<R, W> Drop for Screen<R, W>
-where
-    R: Read,
-    W: Write,
-{
+impl<W: Write> Drop for Screen<W> {
     fn drop(&mut self) {
         write!(self.stdout, "{}", tm::cursor::Show).expect("restore cursor");
     }

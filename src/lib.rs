@@ -13,6 +13,7 @@ mod elapsed;
 mod errors;
 mod field;
 pub mod game;
+pub mod inputs;
 mod play;
 pub mod screen;
 mod tetromino;

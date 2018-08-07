@@ -3,7 +3,7 @@ use coord::{Dir, RotateDir};
 use errors::*;
 use play::Play;
 use screen::{Modal, Screen};
-use std::io::{Read, Write};
+use std::io::Write;
 use std::thread;
 use std::time::Duration;
 
@@ -11,17 +11,13 @@ const FRAME: u64 = 50;
 const TICK: u64 = 1000 / FRAME;
 const UPDATE: u64 = TICK / 2;
 
-pub struct Game<R: Read, W: Write> {
-    screen: Screen<R, W>,
+pub struct Game<W: Write> {
+    screen: Screen<W>,
     help_modal: Modal<'static>,
 }
 
-impl<R, W> Game<R, W>
-where
-    R: Read,
-    W: Write,
-{
-    pub fn new(screen: Screen<R, W>) -> Self {
+impl<W: Write> Game<W> {
+    pub fn new(screen: Screen<W>) -> Self {
         Game {
             screen,
             help_modal: Modal {
@@ -103,7 +99,8 @@ where
                 b'd' => play.rotate_tetro(RotateDir::AntiClockwise),
                 b'f' => play.rotate_tetro(RotateDir::Clockwise),
                 b'?' => {
-                    return self.screen
+                    return self
+                        .screen
                         .show_modal(&self.help_modal)
                         .map(|action| Some(action));
                 }

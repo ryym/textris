@@ -1,11 +1,12 @@
 extern crate termion;
 extern crate textris;
 
-use std::io::{stdout, Read};
+use std::io;
 use std::process;
-use termion::async_stdin;
+use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use textris::game::Game;
+use textris::inputs::Inputs;
 use textris::screen::Screen;
 
 fn main() {
@@ -20,11 +21,12 @@ fn main() {
 }
 
 fn run() -> Result<(), ()> {
-    let stdout = stdout();
+    let stdout = io::stdout();
     let stdout = stdout.lock().into_raw_mode().unwrap();
-    let stdin = async_stdin().bytes();
 
-    let screen = Screen::new(stdin, stdout);
+    let inputs = Inputs::new(io::stdin().events());
+    let screen = Screen::new(inputs, stdout);
+
     let mut game = Game::new(screen);
     match game.start() {
         Ok(_) => Ok(()),

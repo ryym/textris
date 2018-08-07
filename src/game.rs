@@ -90,7 +90,7 @@ impl<W: Write> Game<W> {
     }
 
     fn handle_user_input(&mut self, play: &mut Play) -> Result<Option<Action>> {
-        match self.screen.next_input() {
+        match self.screen.next_input()? {
             Some(Ok(key)) => match key {
                 b'q' => return Ok(Some(Action::Quit)),
                 b'h' => play.slide_tetro(Dir::Left),

@@ -1,10 +1,11 @@
+use errors::*;
 use std::io;
-use std::sync::mpsc::{channel, Receiver};
+use std::sync::mpsc::{channel, Receiver, RecvError, TryRecvError};
 use std::thread;
 use termion::event::Event;
 use termion::input::Events;
 
-pub type EventResult = Result<Event, io::Error>;
+pub type EventResult = io::Result<Event>;
 
 // https://users.rust-lang.org/t/alias-for-trait-bounds/8198
 pub trait EventStream: Iterator<Item = EventResult> + Send {}
@@ -25,10 +26,11 @@ impl Inputs {
         Inputs { receiver }
     }
 
-    pub fn try_recv(&mut self) -> Option<EventResult> {
+    pub fn try_recv(&mut self) -> Result<Option<EventResult>> {
         match self.receiver.try_recv() {
-            Ok(event) => Some(event),
-            Err(_) => None,
+            Ok(event) => Ok(Some(event)),
+            Err(TryRecvError::Empty) => Ok(None),
+            Err(TryRecvError::Disconnected) => Err(RecvError.into()),
         }
     }
 }

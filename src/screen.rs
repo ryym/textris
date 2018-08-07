@@ -37,11 +37,12 @@ impl<W: Write> Screen<W> {
         }
     }
 
-    pub fn next_input(&mut self) -> Option<io::Result<u8>> {
-        match self.inputs.try_recv() {
+    pub fn next_input(&mut self) -> Result<Option<io::Result<u8>>> {
+        let input = match self.inputs.try_recv()? {
             Some(Ok(Event::Key(Key::Char(c)))) => Some(Ok(c as u8)),
             _ => None,
-        }
+        };
+        Ok(input)
     }
 
     fn clear_screen(&mut self) -> Result<()> {
@@ -175,7 +176,7 @@ impl<W: Write> Screen<W> {
 
         let interval = Duration::from_millis(50);
         loop {
-            match self.next_input() {
+            match self.next_input()? {
                 Some(Ok(key)) => match key {
                     b'h' => {
                         if select > 0 {

@@ -1,24 +1,29 @@
 use action::Action;
 use coord::{Dir, RotateDir};
 use errors::*;
+use inputs::Inputs;
 use play::Play;
 use screen::{Modal, Screen};
+use std::io;
 use std::io::Write;
 use std::thread;
 use std::time::Duration;
+use termion::event::Key;
 
 const FRAME: u64 = 50;
 const TICK: u64 = 1000 / FRAME;
 const UPDATE: u64 = TICK / 2;
 
 pub struct Game<W: Write> {
+    inputs: Inputs,
     screen: Screen<W>,
     help_modal: Modal<'static>,
 }
 
 impl<W: Write> Game<W> {
-    pub fn new(screen: Screen<W>) -> Self {
+    pub fn new(inputs: Inputs, screen: Screen<W>) -> Self {
         Game {
+            inputs,
             screen,
             help_modal: Modal {
                 title: "HELP",
@@ -36,15 +41,18 @@ impl<W: Write> Game<W> {
 
     pub fn stop_by_error(&mut self, err: Error) {
         self.screen
-            .show_modal(&Modal {
-                title: "ERROR",
-                content: &[
-                    "Sorry, unexpected error occurred.",
-                    "details:",
-                    &err.to_string(),
-                ],
-                actions: None,
-            })
+            .show_modal(
+                &mut self.inputs,
+                &Modal {
+                    title: "ERROR",
+                    content: &[
+                        "Sorry, unexpected error occurred.",
+                        "details:",
+                        &err.to_string(),
+                    ],
+                    actions: None,
+                },
+            )
             .expect(&format!("show error dialog ({})", err));
     }
 
@@ -77,7 +85,7 @@ impl<W: Write> Game<W> {
 
             if t % UPDATE == 0 {
                 if let Err(_) = play.update() {
-                    return self.screen.render_game_over(&play);
+                    return self.screen.render_game_over(&mut self.inputs, &play);
                 }
             }
             if t % TICK == 0 {
@@ -90,8 +98,16 @@ impl<W: Write> Game<W> {
         }
     }
 
+    pub fn next_input(&mut self) -> Result<Option<io::Result<u8>>> {
+        let input = match self.inputs.try_recv_key()? {
+            Some(Ok(Key::Char(c))) => Some(Ok(c as u8)),
+            _ => None,
+        };
+        Ok(input)
+    }
+
     fn handle_user_input(&mut self, play: &mut Play) -> Result<Option<Action>> {
-        match self.screen.next_input()? {
+        match self.next_input()? {
             Some(Ok(key)) => match key {
                 b'q' => return Ok(Some(Action::Quit)),
                 b'h' => play.slide_tetro(Dir::Left),
@@ -102,7 +118,7 @@ impl<W: Write> Game<W> {
                 b'?' => {
                     return self
                         .screen
-                        .show_modal(&self.help_modal)
+                        .show_modal(&mut self.inputs, &self.help_modal)
                         .map(|action| Some(action));
                 }
                 _ => {}

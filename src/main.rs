@@ -25,9 +25,9 @@ fn run() -> Result<(), ()> {
     let stdout = stdout.lock().into_raw_mode().unwrap();
 
     let inputs = Inputs::new(io::stdin().events());
-    let screen = Screen::new(inputs, stdout);
+    let screen = Screen::new(stdout);
+    let mut game = Game::new(inputs, screen);
 
-    let mut game = Game::new(screen);
     match game.start() {
         Ok(_) => Ok(()),
         Err(err) => {

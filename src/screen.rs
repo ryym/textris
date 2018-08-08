@@ -3,7 +3,7 @@ use color::Color;
 use errors::*;
 use inputs::Inputs;
 use play::Play;
-use std::io::{self, Write};
+use std::io::Write;
 use std::iter;
 use std::thread;
 use std::time::Duration;
@@ -23,26 +23,16 @@ const FIELD_X: usize = 1;
 const FIELD_Y: usize = 3;
 
 pub struct Screen<W: Write> {
-    inputs: Inputs,
     stdout: W,
     field_bg: Color,
 }
 
 impl<W: Write> Screen<W> {
-    pub fn new(inputs: Inputs, stdout: W) -> Screen<W> {
+    pub fn new(stdout: W) -> Screen<W> {
         Screen {
-            inputs,
             stdout,
             field_bg: Color::black(),
         }
-    }
-
-    pub fn next_input(&mut self) -> Result<Option<io::Result<u8>>> {
-        let input = match self.inputs.try_recv_key()? {
-            Some(Ok(Key::Char(c))) => Some(Ok(c as u8)),
-            _ => None,
-        };
-        Ok(input)
     }
 
     fn clear_screen(&mut self) -> Result<()> {
@@ -121,18 +111,21 @@ impl<W: Write> Screen<W> {
         Ok(())
     }
 
-    pub fn render_game_over(&mut self, play: &Play) -> Result<Action> {
-        self.show_modal(&Modal {
-            title: "GAME OVER",
-            content: &[
-                &format!("Time:  {}", play.elapsed()),
-                &format!("Score: {}", play.score()),
-            ],
-            actions: Some(&[Action::Retry, Action::Quit]),
-        })
+    pub fn render_game_over(&mut self, inputs: &mut Inputs, play: &Play) -> Result<Action> {
+        self.show_modal(
+            inputs,
+            &Modal {
+                title: "GAME OVER",
+                content: &[
+                    &format!("Time:  {}", play.elapsed()),
+                    &format!("Score: {}", play.score()),
+                ],
+                actions: Some(&[Action::Retry, Action::Quit]),
+            },
+        )
     }
 
-    pub fn show_modal(&mut self, modal: &Modal) -> Result<Action> {
+    pub fn show_modal(&mut self, inputs: &mut Inputs, modal: &Modal) -> Result<Action> {
         let border = "---------------------------------------";
         let inner_border = format!("|{}|", &border[1..border.len() - 1]);
         let back = iter::repeat(" ").take(border.len()).collect::<String>();
@@ -174,32 +167,27 @@ impl<W: Write> Screen<W> {
 
         self.stdout.flush()?;
 
-        let interval = Duration::from_millis(50);
         loop {
-            match self.next_input()? {
-                Some(Ok(key)) => match key {
-                    b'h' => {
+            match inputs.recv_key()? {
+                Ok(key) => match key {
+                    Key::Char('h') => {
                         if select > 0 {
                             select -= 1;
                         }
                     }
-                    b'l' => {
+                    Key::Char('l') => {
                         if select < actions.len() - 1 {
                             select += 1;
                         }
                     }
-                    b'\n' | b'q' => {
-                        break;
-                    }
+                    Key::Char('\n') | Key::Char('q') => break,
                     _ => {}
                 },
                 _ => {}
             }
-
             let action_btns = self.write_inline_actions(&actions, select);
             write!(self.stdout, "{}{}", Goto(x + 1, y_actions), action_btns)?;
             self.stdout.flush()?;
-            thread::sleep(interval);
         }
 
         // Clear modal

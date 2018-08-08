@@ -52,11 +52,12 @@ impl<W: Write> Game<W> {
         self.screen.render_title()?;
         thread::sleep(Duration::from_millis(800));
 
-        let mut next = self.play(Play::new())?;
-        while next != Action::Quit {
-            next = self.play(Play::new())?;
+        loop {
+            let next_action = self.play(Play::new())?;
+            if next_action == Action::Quit {
+                return Ok(());
+            }
         }
-        Ok(())
     }
 
     fn play(&mut self, mut play: Play) -> Result<Action> {

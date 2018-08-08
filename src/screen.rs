@@ -10,7 +10,7 @@ use std::time::Duration;
 use termion as tm;
 use termion::color;
 use termion::cursor::Goto;
-use termion::event::{Event, Key};
+use termion::event::Key;
 
 pub struct Modal<'a> {
     pub title: &'a str,
@@ -38,8 +38,8 @@ impl<W: Write> Screen<W> {
     }
 
     pub fn next_input(&mut self) -> Result<Option<io::Result<u8>>> {
-        let input = match self.inputs.try_recv()? {
-            Some(Ok(Event::Key(Key::Char(c)))) => Some(Ok(c as u8)),
+        let input = match self.inputs.try_recv_key()? {
+            Some(Ok(Key::Char(c))) => Some(Ok(c as u8)),
             _ => None,
         };
         Ok(input)

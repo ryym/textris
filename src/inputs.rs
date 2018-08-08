@@ -2,7 +2,7 @@ use errors::*;
 use std::io;
 use std::sync::mpsc::{channel, Receiver, RecvError, TryRecvError};
 use std::thread;
-use termion::event::Event;
+use termion::event::{Event, Key};
 use termion::input::Events;
 
 pub type EventResult = io::Result<Event>;
@@ -26,7 +26,17 @@ impl Inputs {
         Inputs { receiver }
     }
 
-    pub fn try_recv(&mut self) -> Result<Option<EventResult>> {
+    pub fn try_recv_key(&mut self) -> Result<Option<io::Result<Key>>> {
+        self.try_recv_event().map(|option| {
+            option.and_then(|result| match result {
+                Ok(Event::Key(key)) => Some(Ok(key)),
+                Ok(_) => None,
+                Err(err) => Some(Err(err)),
+            })
+        })
+    }
+
+    pub fn try_recv_event(&mut self) -> Result<Option<EventResult>> {
         match self.receiver.try_recv() {
             Ok(event) => Ok(Some(event)),
             Err(TryRecvError::Empty) => Ok(None),

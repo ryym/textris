@@ -1,3 +1,4 @@
+use super::{EventReader, KeyConverter, Order};
 use errors::*;
 use std::io;
 use std::sync::mpsc::{channel, Receiver, RecvError, TryRecvError};
@@ -14,6 +15,7 @@ impl<R: io::Read + Send> EventStream for Events<R> {}
 
 pub struct Inputs {
     receiver: Receiver<EventResult>,
+    converter: EventReader,
 }
 
 fn filter_key_event(event: EventResult) -> Option<KeyResult> {
@@ -32,7 +34,12 @@ impl Inputs {
                 sender.send(event).expect("send event from Inputs");
             }
         });
-        Inputs { receiver }
+
+        let converter = EventReader::new(KeyConverter::Vim);
+        Inputs {
+            receiver,
+            converter,
+        }
     }
 
     pub fn recv_event(&mut self) -> Result<EventResult> {
@@ -58,5 +65,33 @@ impl Inputs {
     pub fn try_recv_key(&mut self) -> Result<Option<KeyResult>> {
         self.try_recv_event()
             .map(|event| event.and_then(|ev| filter_key_event(ev)))
+    }
+
+    pub fn recv_order(&mut self) -> Result<io::Result<Order>> {
+        loop {
+            match self.recv_event()? {
+                Ok(event) => {
+                    if let Some(order) = self.converter.order(event) {
+                        return Ok(Ok(order));
+                    }
+                }
+                Err(err) => {
+                    return Ok(Err(err));
+                }
+            }
+        }
+    }
+
+    pub fn try_recv_order(&mut self) -> Result<Option<io::Result<Order>>> {
+        match self.try_recv_event()? {
+            Some(event) => {
+                let order = match event {
+                    Ok(event) => self.converter.order(event).map(|o| Ok(o)),
+                    Err(err) => Some(Err(err)),
+                };
+                Ok(order)
+            }
+            None => Ok(None),
+        }
     }
 }

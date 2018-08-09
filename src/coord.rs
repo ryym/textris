@@ -39,7 +39,7 @@ impl Default for Coord {
 
 pub type Dirs = [Dir; 4];
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Dir {
     Up,
     Right,
@@ -86,7 +86,7 @@ impl Default for Dir {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum RotateDir {
     Clockwise,
     AntiClockwise,

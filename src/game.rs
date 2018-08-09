@@ -3,11 +3,9 @@ use errors::*;
 use inputs::{Inputs, Order};
 use play::Play;
 use screen::{Modal, Screen};
-use std::io;
 use std::io::Write;
 use std::thread;
 use std::time::Duration;
-use termion::event::Key;
 
 const FRAME: u64 = 50;
 const TICK: u64 = 1000 / FRAME;
@@ -95,14 +93,6 @@ impl<W: Write> Game<W> {
             thread::sleep(interval);
             t += 1;
         }
-    }
-
-    pub fn next_input(&mut self) -> Result<Option<io::Result<u8>>> {
-        let input = match self.inputs.try_recv_key()? {
-            Some(Ok(Key::Char(c))) => Some(Ok(c as u8)),
-            _ => None,
-        };
-        Ok(input)
     }
 
     fn handle_user_input(&mut self, play: &mut Play) -> Result<Option<Action>> {

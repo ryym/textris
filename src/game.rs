@@ -1,7 +1,6 @@
 use action::Action;
-use coord::{Dir, RotateDir};
 use errors::*;
-use inputs::Inputs;
+use inputs::{Inputs, Order};
 use play::Play;
 use screen::{Modal, Screen};
 use std::io;
@@ -107,15 +106,12 @@ impl<W: Write> Game<W> {
     }
 
     fn handle_user_input(&mut self, play: &mut Play) -> Result<Option<Action>> {
-        match self.next_input()? {
-            Some(Ok(key)) => match key {
-                b'q' => return Ok(Some(Action::Quit)),
-                b'h' => play.slide_tetro(Dir::Left),
-                b'l' => play.slide_tetro(Dir::Right),
-                b'j' => play.slide_tetro(Dir::Down),
-                b'd' => play.rotate_tetro(RotateDir::AntiClockwise),
-                b'f' => play.rotate_tetro(RotateDir::Clockwise),
-                b'?' => {
+        match self.inputs.try_recv_order()? {
+            Some(Ok(order)) => match order {
+                Order::Move(dir) => play.slide_tetro(dir),
+                Order::Rotate(rotation) => play.rotate_tetro(rotation),
+                Order::Quit => return Ok(Some(Action::Quit)),
+                Order::Help => {
                     return self
                         .screen
                         .show_modal(&mut self.inputs, &self.help_modal)

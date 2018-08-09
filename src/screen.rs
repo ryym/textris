@@ -1,7 +1,8 @@
 use action::Action;
 use color::Color;
+use coord::Dir;
 use errors::*;
-use inputs::Inputs;
+use inputs::{Inputs, Order};
 use play::Play;
 use std::io::Write;
 use std::iter;
@@ -10,7 +11,6 @@ use std::time::Duration;
 use termion as tm;
 use termion::color;
 use termion::cursor::Goto;
-use termion::event::Key;
 
 pub struct Modal<'a> {
     pub title: &'a str,
@@ -168,23 +168,24 @@ impl<W: Write> Screen<W> {
         self.stdout.flush()?;
 
         loop {
-            match inputs.recv_key()? {
-                Ok(key) => match key {
-                    Key::Char('h') => {
+            match inputs.recv_order()? {
+                Ok(order) => match order {
+                    Order::Move(Dir::Left) => {
                         if select > 0 {
                             select -= 1;
                         }
                     }
-                    Key::Char('l') => {
+                    Order::Move(Dir::Right) => {
                         if select < actions.len() - 1 {
                             select += 1;
                         }
                     }
-                    Key::Char('\n') | Key::Char('q') => break,
+                    Order::Select | Order::Quit => break,
                     _ => {}
                 },
                 _ => {}
             }
+
             let action_btns = self.write_inline_actions(&actions, select);
             write!(self.stdout, "{}{}", Goto(x + 1, y_actions), action_btns)?;
             self.stdout.flush()?;

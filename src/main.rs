@@ -31,7 +31,7 @@ fn run(conf: Config) -> i32 {
     let stdout = io::stdout();
     let stdout = stdout.lock().into_raw_mode().unwrap();
 
-    let inputs = Inputs::new(io::stdin().events());
+    let inputs = Inputs::new(io::stdin().events(), conf.key());
     let screen = Screen::new(stdout);
     let mut game = Game::new(inputs, screen);
 

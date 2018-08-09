@@ -11,6 +11,7 @@ macro_rules! hash_map {
     }}
 }
 
+#[derive(Clone, Copy)]
 pub enum KeyConverter {
     Normal,
     Vim,

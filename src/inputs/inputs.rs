@@ -18,7 +18,7 @@ pub struct Inputs {
 }
 
 impl Inputs {
-    pub fn new<ES: 'static + EventStream>(events: ES) -> Inputs {
+    pub fn new<ES: 'static + EventStream>(events: ES, key: KeyConverter) -> Inputs {
         let (sender, receiver) = channel();
         thread::spawn(move || {
             for event in events {
@@ -26,7 +26,7 @@ impl Inputs {
             }
         });
 
-        let converter = EventReader::new(KeyConverter::Vim);
+        let converter = EventReader::new(key);
         Inputs {
             receiver,
             converter,

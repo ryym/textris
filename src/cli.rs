@@ -6,6 +6,12 @@ pub struct Config {
     key: KeyConverter,
 }
 
+impl Config {
+    pub fn key(&self) -> KeyConverter {
+        self.key
+    }
+}
+
 pub enum CliParsed {
     Help(String),
     Run(Config),

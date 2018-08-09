@@ -3,7 +3,7 @@ use errors::*;
 use std::io;
 use std::sync::mpsc::{channel, Receiver, RecvError, TryRecvError};
 use std::thread;
-use termion::event::Event;
+use termion::event::{Event, Key};
 use termion::input::Events;
 
 pub type EventResult = io::Result<Event>;
@@ -71,5 +71,9 @@ impl Inputs {
             }
             None => Ok(None),
         }
+    }
+
+    pub fn bound_key(&self, order: Order) -> Key {
+        self.converter.bound_key(order)
     }
 }

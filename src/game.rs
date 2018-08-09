@@ -1,4 +1,5 @@
 use action::Action;
+use coord::{Dir, RotateDir};
 use errors::*;
 use inputs::{Inputs, Order};
 use play::Play;
@@ -6,6 +7,7 @@ use screen::{Modal, Screen};
 use std::io::Write;
 use std::thread;
 use std::time::Duration;
+use termion::event::Key;
 
 const FRAME: u64 = 50;
 const TICK: u64 = 1000 / FRAME;
@@ -17,22 +19,47 @@ pub struct Game<W: Write> {
     help_modal: Modal,
 }
 
+fn make_help_modal(inputs: &Inputs) -> Modal {
+    let orders = [
+        (Order::Move(Dir::Left), "Move left"),
+        (Order::Move(Dir::Right), "Move right"),
+        (Order::Move(Dir::Down), "Speed up"),
+        (Order::Rotate(RotateDir::AntiClockwise), "rotate"),
+        (Order::Rotate(RotateDir::Clockwise), "rotate"),
+        (Order::Quit, "quit"),
+    ];
+    let content = orders
+        .iter()
+        .map(|&(order, desc)| {
+            let key = inputs.bound_key(order);
+            format!("{} - {}", key_name(&key), desc)
+        })
+        .collect();
+
+    Modal {
+        title: "HELP".to_string(),
+        content,
+        actions: vec![Action::Ok, Action::Reset, Action::Quit],
+    }
+}
+
+fn key_name(key: &Key) -> String {
+    match key {
+        Key::Char(chr) => chr.to_string(),
+        Key::Left => "←".to_string(),
+        Key::Right => "→".to_string(),
+        Key::Down => "↓".to_string(),
+        _ => "".to_string(),
+    }
+}
+
 impl<W: Write> Game<W> {
     pub fn new(inputs: Inputs, screen: Screen<W>) -> Self {
+        let help_modal = make_help_modal(&inputs);
         Game {
             inputs,
             screen,
-            help_modal: Modal {
-                title: "HELP".to_string(),
-                content: vec![
-                    String::from("h - Move left"),
-                    String::from("l - Move right"),
-                    String::from("j - Speed up"),
-                    String::from("d,f - Rotate"),
-                    String::from("q - Quit"),
-                ],
-                actions: vec![Action::Ok, Action::Reset, Action::Quit],
-            },
+            help_modal,
         }
     }
 

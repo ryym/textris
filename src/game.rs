@@ -14,7 +14,7 @@ const UPDATE: u64 = TICK / 2;
 pub struct Game<W: Write> {
     inputs: Inputs,
     screen: Screen<W>,
-    help_modal: Modal<'static>,
+    help_modal: Modal,
 }
 
 impl<W: Write> Game<W> {
@@ -23,15 +23,15 @@ impl<W: Write> Game<W> {
             inputs,
             screen,
             help_modal: Modal {
-                title: "HELP",
-                content: &[
-                    "h - Move left",
-                    "l - Move right",
-                    "j - Speed up",
-                    "d,f - Rotate",
-                    "q - Quit",
+                title: "HELP".to_string(),
+                content: vec![
+                    String::from("h - Move left"),
+                    String::from("l - Move right"),
+                    String::from("j - Speed up"),
+                    String::from("d,f - Rotate"),
+                    String::from("q - Quit"),
                 ],
-                actions: Some(&[Action::Ok, Action::Reset, Action::Quit]),
+                actions: vec![Action::Ok, Action::Reset, Action::Quit],
             },
         }
     }
@@ -41,13 +41,13 @@ impl<W: Write> Game<W> {
             .show_modal(
                 &mut self.inputs,
                 &Modal {
-                    title: "ERROR",
-                    content: &[
-                        "Sorry, unexpected error occurred.",
-                        "details:",
-                        &err.to_string(),
+                    title: "ERROR".to_string(),
+                    content: vec![
+                        String::from("Sorry, unexpected error occurred."),
+                        String::from("details:"),
+                        err.to_string(),
                     ],
-                    actions: None,
+                    actions: vec![Action::Ok],
                 },
             )
             .expect(&format!("show error dialog ({})", err));

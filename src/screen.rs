@@ -12,10 +12,10 @@ use termion as tm;
 use termion::color;
 use termion::cursor::Goto;
 
-pub struct Modal<'a> {
-    pub title: &'a str,
-    pub content: &'a [&'a str],
-    pub actions: Option<&'a [Action]>,
+pub struct Modal {
+    pub title: String,
+    pub content: Vec<String>,
+    pub actions: Vec<Action>,
 }
 
 const TITLE: &'static str = "- T E X T R I S -";
@@ -115,12 +115,12 @@ impl<W: Write> Screen<W> {
         self.show_modal(
             inputs,
             &Modal {
-                title: "GAME OVER",
-                content: &[
-                    &format!("Time:  {}", play.elapsed()),
-                    &format!("Score: {}", play.score()),
+                title: "GAME OVER".to_string(),
+                content: vec![
+                    format!("Time:  {}", play.elapsed()),
+                    format!("Score: {}", play.score()),
                 ],
-                actions: Some(&[Action::Retry, Action::Quit]),
+                actions: vec![Action::Retry, Action::Quit],
             },
         )
     }
@@ -154,13 +154,10 @@ impl<W: Write> Screen<W> {
 
         let y_actions = y;
 
-        let actions = match modal.actions {
-            Some(actions) => actions,
-            None => &[Action::Ok],
-        };
+        let actions = &modal.actions;
         let mut select = 0;
 
-        let action_btns = self.write_inline_actions(&actions, select);
+        let action_btns = self.write_inline_actions(actions, select);
         write!(self.stdout, "{}{}", Goto(x + 1, y_actions), action_btns)?;
         y += 1;
         write!(self.stdout, "{}{}", Goto(x, y), border)?;
@@ -186,7 +183,7 @@ impl<W: Write> Screen<W> {
                 _ => {}
             }
 
-            let action_btns = self.write_inline_actions(&actions, select);
+            let action_btns = self.write_inline_actions(actions, select);
             write!(self.stdout, "{}{}", Goto(x + 1, y_actions), action_btns)?;
             self.stdout.flush()?;
         }

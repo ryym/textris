@@ -6,7 +6,7 @@ keywords = ["tetris"]
 license = "MIT OR Apache-2.0"
 name = "textris"
 repository = "https://github.com/ryym/textris"
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]
 error-chain = "0.12.0"

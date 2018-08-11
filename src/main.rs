@@ -20,7 +20,10 @@ fn main() {
             CliParsed::Run(config) => run(config),
         },
         Err(err) => {
-            println!("{}", err);
+            println!("ERR: {}", err);
+            for e in err.iter_causes() {
+                println!("  {}", e);
+            }
             1
         }
     };

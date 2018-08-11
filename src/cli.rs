@@ -34,7 +34,8 @@ pub fn parse_args(args: &[String]) -> Fallible<CliParsed> {
     let key = if let Some(key) = m.opt_str("key") {
         match key.as_str() {
             "vim" => KeyConverter::Vim,
-            _ => KeyConverter::Normal,
+            "normal" => KeyConverter::Normal,
+            key => return Err(format_err!("invalid key type: {}", key)),
         }
     } else {
         KeyConverter::Normal

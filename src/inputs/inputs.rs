@@ -1,7 +1,7 @@
 use super::{EventReader, KeyConverter, Order};
-use errors::*;
+use failure::{Fail, Fallible};
 use std::io;
-use std::sync::mpsc::{channel, Receiver, RecvError, TryRecvError};
+use std::sync::mpsc::{channel, Receiver, TryRecvError};
 use std::thread;
 use termion::event::{Event, Key};
 use termion::input::Events;
@@ -33,19 +33,23 @@ impl Inputs {
         }
     }
 
-    pub fn recv_event(&mut self) -> Result<EventResult> {
-        self.receiver.recv().map_err(|err| err.into())
+    pub fn recv_event(&mut self) -> Fallible<EventResult> {
+        let event = self
+            .receiver
+            .recv()
+            .map_err(|e| e.context("failed to receive event"))?;
+        Ok(event)
     }
 
-    pub fn try_recv_event(&mut self) -> Result<Option<EventResult>> {
+    pub fn try_recv_event(&mut self) -> Fallible<Option<EventResult>> {
         match self.receiver.try_recv() {
             Ok(event) => Ok(Some(event)),
             Err(TryRecvError::Empty) => Ok(None),
-            Err(TryRecvError::Disconnected) => Err(RecvError.into()),
+            Err(e) => Err(e.context("failed to try receive event").into()),
         }
     }
 
-    pub fn recv_order(&mut self) -> Result<io::Result<Order>> {
+    pub fn recv_order(&mut self) -> Fallible<io::Result<Order>> {
         loop {
             match self.recv_event()? {
                 Ok(event) => {
@@ -60,7 +64,7 @@ impl Inputs {
         }
     }
 
-    pub fn try_recv_order(&mut self) -> Result<Option<io::Result<Order>>> {
+    pub fn try_recv_order(&mut self) -> Fallible<Option<io::Result<Order>>> {
         match self.try_recv_event()? {
             Some(event) => {
                 let order = match event {

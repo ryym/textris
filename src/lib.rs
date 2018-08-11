@@ -2,6 +2,7 @@
 
 #[macro_use]
 extern crate error_chain;
+extern crate failure;
 extern crate getopts;
 extern crate rand;
 extern crate termion;

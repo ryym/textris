@@ -1,7 +1,5 @@
 //! Textris is a hobby project to play tetris on your terminal.
 
-#[macro_use]
-extern crate error_chain;
 extern crate failure;
 extern crate getopts;
 extern crate rand;
@@ -13,7 +11,6 @@ pub mod cli;
 mod color;
 pub mod coord;
 mod elapsed;
-mod errors;
 mod field;
 pub mod game;
 pub mod inputs;

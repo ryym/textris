@@ -1,4 +1,4 @@
-use errors::*;
+use failure::{Fail, Fallible};
 use getopts::Options;
 use inputs::KeyConverter;
 
@@ -17,12 +17,14 @@ pub enum CliParsed {
     Run(Config),
 }
 
-pub fn parse_args(args: &[String]) -> Result<CliParsed> {
+pub fn parse_args(args: &[String]) -> Fallible<CliParsed> {
     let _program = &args[0];
     let args = &args[1..];
 
     let mut opts = Options::new();
-    let m = define_opts(&mut opts).parse(args)?;
+    let m = define_opts(&mut opts)
+        .parse(args)
+        .map_err(|e| e.context("failed to parse arguments"))?;
 
     if m.opt_present("h") {
         let usage = opts.usage("");

@@ -1,6 +1,6 @@
 use action::Action;
 use coord::{Dir, RotateDir};
-use errors::*;
+use failure::{Error, Fallible};
 use inputs::{Inputs, Order};
 use play::Play;
 use screen::{Modal, Screen};
@@ -80,7 +80,7 @@ impl<W: Write> Game<W> {
             .expect(&format!("show error dialog ({})", err));
     }
 
-    pub fn start(&mut self) -> Result<()> {
+    pub fn start(&mut self) -> Fallible<()> {
         self.screen.render_title()?;
         thread::sleep(Duration::from_millis(800));
 
@@ -92,7 +92,7 @@ impl<W: Write> Game<W> {
         }
     }
 
-    fn play(&mut self, mut play: Play) -> Result<Action> {
+    fn play(&mut self, mut play: Play) -> Fallible<Action> {
         self.screen.render_header()?;
 
         let interval = Duration::from_millis(FRAME);
@@ -122,7 +122,7 @@ impl<W: Write> Game<W> {
         }
     }
 
-    fn handle_user_input(&mut self, play: &mut Play) -> Result<Option<Action>> {
+    fn handle_user_input(&mut self, play: &mut Play) -> Fallible<Option<Action>> {
         match self.inputs.try_recv_order()? {
             Some(Ok(order)) => match order {
                 Order::Move(dir) => play.slide_tetro(dir),

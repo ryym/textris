@@ -1,7 +1,7 @@
 use action::Action;
 use color::Color;
 use coord::Dir;
-use errors::*;
+use failure::{Fail, Fallible};
 use inputs::{Inputs, Order};
 use play::Play;
 use std::io::Write;
@@ -35,37 +35,38 @@ impl<W: Write> Screen<W> {
         }
     }
 
-    fn clear_screen(&mut self) -> Result<()> {
+    fn clear_screen(&mut self) -> Fallible<()> {
         write!(
             self.stdout,
             "{}{}{}",
             tm::clear::All,
             Goto(1, 1),
             tm::cursor::Hide
-        )?;
+        ).map_err(|e| e.context("failed to clear screen"))?;
         Ok(())
     }
 
-    pub fn render_title(&mut self) -> Result<()> {
+    pub fn render_title(&mut self) -> Fallible<()> {
         self.clear_screen()?;
 
         let interval = Duration::from_millis(32);
         for i in 0..(TITLE.len() + 1) {
-            write!(self.stdout, "{}{}", Goto(1, 1), &TITLE[0..i])?;
-            self.stdout.flush()?;
+            write!(self.stdout, "{}{}", Goto(1, 1), &TITLE[0..i])
+                .and_then(|_| self.stdout.flush())
+                .map_err(|e| e.context("failed to render title"))?;
             thread::sleep(interval);
         }
 
         Ok(())
     }
 
-    pub fn render_header(&mut self) -> Result<()> {
+    pub fn render_header(&mut self) -> Fallible<()> {
         self.clear_screen()?;
         write!(self.stdout, "{}", TITLE)?;
         Ok(())
     }
 
-    pub fn render(&mut self, play: &Play) -> Result<()> {
+    pub fn render(&mut self, play: &Play) -> Fallible<()> {
         let field = play.field();
 
         for (i, line) in field.lines_iter().enumerate() {
@@ -95,12 +96,13 @@ impl<W: Write> Screen<W> {
             write!(self.stdout, "{}", floor)?;
         }
 
-        self.render_side_menu(&play, (field.width() * 2 + 4) as u16)?;
+        self.render_side_menu(&play, (field.width() * 2 + 4) as u16)
+            .map_err(|e| e.context("failed to render side menu"))?;
 
         Ok(())
     }
 
-    fn render_side_menu(&mut self, play: &Play, x: u16) -> Result<()> {
+    fn render_side_menu(&mut self, play: &Play, x: u16) -> Fallible<()> {
         let y = FIELD_Y as u16;
 
         let next_block = play.next_tetro_hint();
@@ -111,7 +113,7 @@ impl<W: Write> Screen<W> {
         Ok(())
     }
 
-    pub fn render_game_over(&mut self, inputs: &mut Inputs, play: &Play) -> Result<Action> {
+    pub fn render_game_over(&mut self, inputs: &mut Inputs, play: &Play) -> Fallible<Action> {
         self.show_modal(
             inputs,
             &Modal {
@@ -125,7 +127,7 @@ impl<W: Write> Screen<W> {
         )
     }
 
-    pub fn show_modal(&mut self, inputs: &mut Inputs, modal: &Modal) -> Result<Action> {
+    pub fn show_modal(&mut self, inputs: &mut Inputs, modal: &Modal) -> Fallible<Action> {
         let border = "---------------------------------------";
         let inner_border = format!("|{}|", &border[1..border.len() - 1]);
         let back = iter::repeat(" ").take(border.len()).collect::<String>();

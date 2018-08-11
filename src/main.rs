@@ -9,13 +9,27 @@ use textris::game::Game;
 use textris::inputs::Inputs;
 use textris::screen::Screen;
 
+enum Exit {
+    Ok,
+    Err(i32),
+}
+
+impl Exit {
+    pub fn code(&self) -> i32 {
+        match self {
+            Exit::Ok => 0,
+            Exit::Err(n) => *n,
+        }
+    }
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let exit_code = match cli::parse_args(&args) {
         Ok(parsed) => match parsed {
             CliParsed::Help(msg) => {
                 println!("{}", msg);
-                0
+                Exit::Ok
             }
             CliParsed::Run(config) => run(config),
         },
@@ -24,13 +38,13 @@ fn main() {
             for e in err.iter_causes() {
                 println!("  {}", e);
             }
-            1
+            Exit::Err(1)
         }
     };
-    process::exit(exit_code);
+    process::exit(exit_code.code());
 }
 
-fn run(conf: Config) -> i32 {
+fn run(conf: Config) -> Exit {
     let stdout = io::stdout();
     let stdout = stdout.lock().into_raw_mode().unwrap();
 
@@ -39,10 +53,10 @@ fn run(conf: Config) -> i32 {
     let mut game = Game::new(inputs, screen);
 
     match game.start() {
-        Ok(_) => 0,
+        Ok(_) => Exit::Ok,
         Err(err) => {
             game.stop_by_error(err);
-            1
+            Exit::Err(1)
         }
     }
 }

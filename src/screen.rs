@@ -209,8 +209,7 @@ impl<W: Write> Screen<W> {
                 } else {
                     format!("  {}  ", a)
                 }
-            })
-            .collect()
+            }).collect()
     }
 }
 

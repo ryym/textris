@@ -1,5 +1,5 @@
 use super::Order;
-use coord::{Dir, RotateDir};
+use crate::coord::{Dir, RotateDir};
 use std::collections::HashMap;
 use termion::event::Key;
 

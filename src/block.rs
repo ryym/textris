@@ -1,4 +1,4 @@
-use color::Color;
+use crate::color::Color;
 use std::fmt;
 use termion::color;
 

@@ -1,9 +1,9 @@
-use action::Action;
-use color::Color;
-use coord::Dir;
+use crate::action::Action;
+use crate::color::Color;
+use crate::coord::Dir;
 use failure::{Fail, Fallible};
-use inputs::{Inputs, Order};
-use play::Play;
+use crate::inputs::{Inputs, Order};
+use crate::play::Play;
 use std::io::Write;
 use std::iter;
 use std::thread;

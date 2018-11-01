@@ -2,6 +2,7 @@
 authors = ["ryym <ryym.64@gmail.com>"]
 categories = ["games"]
 description = "Tetris on terminal!"
+edition = "2018"
 keywords = ["tetris"]
 license = "MIT OR Apache-2.0"
 name = "textris"

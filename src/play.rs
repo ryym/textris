@@ -3,9 +3,9 @@ use crate::color::Color;
 use crate::coord::{Coord, Dir, Dirs, RotateDir};
 use crate::elapsed::Elapsed;
 use crate::field::Field;
+use crate::tetromino::{Tetromino, Tetrominos, N_TETROS};
 use rand::{thread_rng, Rng, ThreadRng};
 use std::collections::HashMap;
-use crate::tetromino::{Tetromino, Tetrominos, N_TETROS};
 
 struct Random<R: Rng> {
     rng: R,

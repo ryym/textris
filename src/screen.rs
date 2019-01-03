@@ -1,9 +1,9 @@
 use crate::action::Action;
 use crate::color::Color;
 use crate::coord::Dir;
-use failure::{Fail, Fallible};
 use crate::inputs::{Inputs, Order};
 use crate::play::Play;
+use failure::{Fail, Fallible};
 use std::io::Write;
 use std::iter;
 use std::thread;
@@ -42,7 +42,8 @@ impl<W: Write> Screen<W> {
             tm::clear::All,
             Goto(1, 1),
             tm::cursor::Hide
-        ).map_err(|e| e.context("failed to clear screen"))?;
+        )
+        .map_err(|e| e.context("failed to clear screen"))?;
         Ok(())
     }
 
@@ -209,7 +210,8 @@ impl<W: Write> Screen<W> {
                 } else {
                     format!("  {}  ", a)
                 }
-            }).collect()
+            })
+            .collect()
     }
 }
 

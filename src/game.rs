@@ -1,9 +1,9 @@
 use crate::action::Action;
 use crate::coord::{Dir, RotateDir};
-use failure::{Error, Fallible};
 use crate::inputs::{Inputs, Order};
 use crate::play::Play;
 use crate::screen::{Modal, Screen};
+use failure::{Error, Fallible};
 use std::io::Write;
 use std::thread;
 use std::time::Duration;
@@ -33,7 +33,8 @@ fn make_help_modal(inputs: &Inputs) -> Modal {
         .map(|&(order, desc)| {
             let key = inputs.bound_key(order);
             format!("{} - {}", key_name(&key), desc)
-        }).collect();
+        })
+        .collect();
 
     Modal {
         title: "HELP".to_string(),
@@ -75,7 +76,8 @@ impl<W: Write> Game<W> {
                     ],
                     actions: vec![Action::Ok],
                 },
-            ).expect(&format!("show error dialog ({})", err));
+            )
+            .expect(&format!("show error dialog ({})", err));
     }
 
     pub fn start(&mut self) -> Fallible<()> {

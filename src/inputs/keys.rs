@@ -21,7 +21,7 @@ impl KeyConverter {
     pub fn key_to_order(&self) -> HashMap<Key, Order> {
         use super::Order::*;
         match self {
-            KeyConverter::Normal => hash_map!{
+            KeyConverter::Normal => hash_map! {
                 Key::Left => Move(Dir::Left),
                 Key::Right => Move(Dir::Right),
                 Key::Down => Move(Dir::Down),
@@ -31,7 +31,7 @@ impl KeyConverter {
                 Key::Char('?') => Help,
                 Key::Char('q') => Quit,
             },
-            KeyConverter::Vim => hash_map!{
+            KeyConverter::Vim => hash_map! {
                 Key::Char('h') => Move(Dir::Left),
                 Key::Char('l') => Move(Dir::Right),
                 Key::Char('j') => Move(Dir::Down),

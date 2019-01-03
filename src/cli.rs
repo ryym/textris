@@ -1,6 +1,6 @@
 use failure::{Fail, Fallible};
 use getopts::Options;
-use inputs::KeyConverter;
+use crate::inputs::KeyConverter;
 
 pub struct Config {
     key: KeyConverter,

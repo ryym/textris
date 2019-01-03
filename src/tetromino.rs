@@ -1,6 +1,6 @@
-use block::Block;
-use color::Color;
-use coord::{Coord, Dir};
+use crate::block::Block;
+use crate::color::Color;
+use crate::coord::{Coord, Dir};
 
 pub const N_TETROS: usize = 7;
 
@@ -36,7 +36,7 @@ impl Tetromino {
     }
 
     fn make_moves(&self, dir: Dir) -> TetroCoords {
-        use coord::Dir::*;
+        use crate::coord::Dir::*;
 
         match self {
             Tetromino::I => match dir {
@@ -84,7 +84,7 @@ impl Tetromino {
     }
 
     pub fn default_char(&self) -> char {
-        use tetromino::Tetromino::*;
+        use crate::tetromino::Tetromino::*;
         match self {
             I => 'I',
             J => 'J',
@@ -97,7 +97,7 @@ impl Tetromino {
     }
 
     pub fn default_block(&self) -> Block {
-        use tetromino::Tetromino::*;
+        use crate::tetromino::Tetromino::*;
 
         let chr = self.default_char();
         match self {

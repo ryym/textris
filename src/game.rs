@@ -1,9 +1,9 @@
-use action::Action;
-use coord::{Dir, RotateDir};
+use crate::action::Action;
+use crate::coord::{Dir, RotateDir};
 use failure::{Error, Fallible};
-use inputs::{Inputs, Order};
-use play::Play;
-use screen::{Modal, Screen};
+use crate::inputs::{Inputs, Order};
+use crate::play::Play;
+use crate::screen::{Modal, Screen};
 use std::io::Write;
 use std::thread;
 use std::time::Duration;

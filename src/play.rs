@@ -76,7 +76,7 @@ impl Play {
 
     fn default_block_map() -> HashMap<Tetromino, Block> {
         let bm = HashMap::with_capacity(N_TETROS);
-        Tetromino::all().into_iter().fold(bm, |mut bm, &t| {
+        Tetromino::all().iter().fold(bm, |mut bm, &t| {
             bm.insert(t, t.default_block());
             bm
         })

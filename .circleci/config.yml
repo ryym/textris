@@ -12,6 +12,8 @@ jobs:
       - restore_cache:
           key: cargo-install
 
+      - run: rustup component add clippy
+      - run: cargo clippy
       - run: cargo test
 
       - save_cache:

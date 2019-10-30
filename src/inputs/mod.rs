@@ -5,6 +5,7 @@ pub use self::inputs::Inputs;
 pub use self::keys::KeyConverter;
 
 mod event_reader;
+#[allow(clippy::module_inception)]
 mod inputs;
 mod keys;
 

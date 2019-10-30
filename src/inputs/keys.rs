@@ -18,7 +18,7 @@ pub enum KeyConverter {
 }
 
 impl KeyConverter {
-    pub fn key_to_order(&self) -> HashMap<Key, Order> {
+    pub fn key_to_order(self) -> HashMap<Key, Order> {
         use super::Order::*;
         match self {
             KeyConverter::Normal => hash_map! {

@@ -52,8 +52,8 @@ pub struct Play {
     score: usize,
 }
 
-impl Play {
-    pub fn new() -> Self {
+impl Default for Play {
+    fn default() -> Self {
         let mut random = Random::new(thread_rng());
         let next_tetro = random.random_tetro();
 
@@ -72,6 +72,12 @@ impl Play {
         };
         play.drop_tetro();
         play
+    }
+}
+
+impl Play {
+    pub fn new() -> Self {
+        Play::default()
     }
 
     fn default_block_map() -> HashMap<Tetromino, Block> {

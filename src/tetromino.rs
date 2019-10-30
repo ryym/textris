@@ -25,7 +25,7 @@ impl Tetromino {
         [I, J, L, O, S, T, Z]
     }
 
-    pub fn make_coords(&self, base: Coord, dir: Dir) -> TetroCoords {
+    pub fn make_coords(self, base: Coord, dir: Dir) -> TetroCoords {
         let moves = self.make_moves(dir);
         [
             base + moves[0],
@@ -35,7 +35,7 @@ impl Tetromino {
         ]
     }
 
-    fn make_moves(&self, dir: Dir) -> TetroCoords {
+    fn make_moves(self, dir: Dir) -> TetroCoords {
         use crate::coord::Dir::*;
 
         match self {
@@ -83,7 +83,7 @@ impl Tetromino {
         }
     }
 
-    pub fn default_char(&self) -> char {
+    pub fn default_char(self) -> char {
         use crate::tetromino::Tetromino::*;
         match self {
             I => 'I',
@@ -96,7 +96,7 @@ impl Tetromino {
         }
     }
 
-    pub fn default_block(&self) -> Block {
+    pub fn default_block(self) -> Block {
         use crate::tetromino::Tetromino::*;
 
         let chr = self.default_char();

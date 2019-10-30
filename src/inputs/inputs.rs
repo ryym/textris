@@ -68,7 +68,7 @@ impl Inputs {
         match self.try_recv_event()? {
             Some(event) => {
                 let order = match event {
-                    Ok(event) => self.converter.order(event).map(|o| Ok(o)),
+                    Ok(event) => self.converter.order(event).map(Ok),
                     Err(err) => Some(Err(err)),
                 };
                 Ok(order)

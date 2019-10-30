@@ -32,7 +32,7 @@ fn make_help_modal(inputs: &Inputs) -> Modal {
         .iter()
         .map(|&(order, desc)| {
             let key = inputs.bound_key(order);
-            format!("{} - {}", key_name(&key), desc)
+            format!("{} - {}", key_name(key), desc)
         })
         .collect();
 
@@ -43,7 +43,7 @@ fn make_help_modal(inputs: &Inputs) -> Modal {
     }
 }
 
-fn key_name(key: &Key) -> String {
+fn key_name(key: Key) -> String {
     match key {
         Key::Char(chr) => chr.to_string(),
         Key::Left => "←".to_string(),
@@ -77,7 +77,7 @@ impl<W: Write> Game<W> {
                     actions: vec![Action::Ok],
                 },
             )
-            .expect(&format!("show error dialog ({})", err));
+            .unwrap_or_else(|_| panic!("show error dialog ({})", err));
     }
 
     pub fn start(&mut self) -> Fallible<()> {
@@ -98,19 +98,14 @@ impl<W: Write> Game<W> {
         let interval = Duration::from_millis(FRAME);
         let mut t = 0;
         loop {
-            match self.handle_user_input(&mut play)? {
-                Some(action) => {
-                    if action != Action::Ok {
-                        return Ok(action);
-                    }
+            if let Some(action) = self.handle_user_input(&mut play)? {
+                if action != Action::Ok {
+                    return Ok(action);
                 }
-                _ => {}
-            };
+            }
 
-            if t % UPDATE == 0 {
-                if let Err(_) = play.update() {
-                    return self.screen.render_game_over(&mut self.inputs, &play);
-                }
+            if t % UPDATE == 0 && play.update().is_err() {
+                return self.screen.render_game_over(&mut self.inputs, &play);
             }
             if t % TICK == 0 {
                 play.tick();
@@ -132,7 +127,7 @@ impl<W: Write> Game<W> {
                     return self
                         .screen
                         .show_modal(&mut self.inputs, &self.help_modal)
-                        .map(|action| Some(action));
+                        .map(Some);
                 }
                 _ => {}
             },

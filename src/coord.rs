@@ -8,11 +8,11 @@ impl Coord {
         Coord(x, y)
     }
 
-    pub fn x(&self) -> i8 {
+    pub fn x(self) -> i8 {
         self.0
     }
 
-    pub fn y(&self) -> i8 {
+    pub fn y(self) -> i8 {
         self.1
     }
 }
@@ -52,7 +52,7 @@ impl Dir {
         [Dir::Up, Dir::Right, Dir::Down, Dir::Left]
     }
 
-    pub fn to_coord(&self) -> Coord {
+    pub fn to_coord(self) -> Coord {
         match self {
             Dir::Up => Coord(0, -1),
             Dir::Right => Coord(1, 0),
@@ -61,7 +61,7 @@ impl Dir {
         }
     }
 
-    pub fn next_dir(&self) -> Dir {
+    pub fn next_dir(self) -> Dir {
         match self {
             Dir::Up => Dir::Right,
             Dir::Right => Dir::Down,
@@ -70,7 +70,7 @@ impl Dir {
         }
     }
 
-    pub fn opponent(&self) -> Dir {
+    pub fn opponent(self) -> Dir {
         match self {
             Dir::Up => Dir::Down,
             Dir::Right => Dir::Left,
@@ -93,7 +93,7 @@ pub enum RotateDir {
 }
 
 impl RotateDir {
-    pub fn rotate(&self, dir: Dir) -> Dir {
+    pub fn rotate(self, dir: Dir) -> Dir {
         let dir = dir.next_dir();
         match self {
             RotateDir::Clockwise => dir,

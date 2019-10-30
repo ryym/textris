@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Default)]
 pub struct Elapsed {
     hours: u64,
     minutes: u64,
@@ -9,11 +9,7 @@ pub struct Elapsed {
 
 impl Elapsed {
     pub fn new() -> Self {
-        Elapsed {
-            hours: 0,
-            minutes: 0,
-            seconds: 0,
-        }
+        Elapsed::default()
     }
 
     pub fn add_secs(&mut self, added: u64) {

@@ -18,7 +18,7 @@ pub struct Modal {
     pub actions: Vec<Action>,
 }
 
-const TITLE: &'static str = "- T E X T R I S -";
+const TITLE: &str = "- T E X T R I S -";
 const FIELD_X: usize = 1;
 const FIELD_Y: usize = 3;
 
@@ -51,7 +51,7 @@ impl<W: Write> Screen<W> {
         self.clear_screen()?;
 
         let interval = Duration::from_millis(32);
-        for i in 0..(TITLE.len() + 1) {
+        for i in 0..=TITLE.len() {
             write!(self.stdout, "{}{}", Goto(1, 1), &TITLE[0..i])
                 .and_then(|_| self.stdout.flush())
                 .map_err(|e| e.context("failed to render title"))?;
@@ -108,7 +108,7 @@ impl<W: Write> Screen<W> {
 
         let next_block = play.next_tetro_hint();
         write!(self.stdout, "{}Next: {}", Goto(x, y), next_block)?;
-        write!(self.stdout, "{}{}", Goto(x, y + 2), "?: Help")?;
+        write!(self.stdout, "{}?: Help", Goto(x, y + 2))?;
         write!(self.stdout, "{}Time:  {}", Goto(x, y + 4), play.elapsed())?;
         write!(self.stdout, "{}Score: {}", Goto(x, y + 5), play.score())?;
         Ok(())
@@ -168,8 +168,8 @@ impl<W: Write> Screen<W> {
         self.stdout.flush()?;
 
         loop {
-            match inputs.recv_order()? {
-                Ok(order) => match order {
+            if let Ok(order) = inputs.recv_order()? {
+                match order {
                     Order::Move(Dir::Left) => {
                         if select > 0 {
                             select -= 1;
@@ -182,8 +182,7 @@ impl<W: Write> Screen<W> {
                     }
                     Order::Select | Order::Quit => break,
                     _ => {}
-                },
-                _ => {}
+                }
             }
 
             let action_btns = self.write_inline_actions(actions, select);

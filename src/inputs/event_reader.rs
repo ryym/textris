@@ -15,7 +15,7 @@ impl EventReader {
 
     pub fn order(&self, input: Event) -> Option<Order> {
         if let Event::Key(key) = input {
-            self.key2order.get(&key).map(|order| *order)
+            self.key2order.get(&key).copied()
         } else {
             None
         }

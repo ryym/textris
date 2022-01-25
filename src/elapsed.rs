@@ -49,7 +49,7 @@ mod tests {
         struct Case {
             secs: u64,
             expected: Elapsed,
-        };
+        }
         let cases = [
             Case {
                 secs: 30,

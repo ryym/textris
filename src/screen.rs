@@ -97,7 +97,7 @@ impl<W: Write> Screen<W> {
             write!(self.stdout, "{}", floor)?;
         }
 
-        self.render_side_menu(&play, (field.width() * 2 + 4) as u16)
+        self.render_side_menu(play, (field.width() * 2 + 4) as u16)
             .map_err(|e| e.context("failed to render side menu"))?;
 
         Ok(())
@@ -131,7 +131,7 @@ impl<W: Write> Screen<W> {
     pub fn show_modal(&mut self, inputs: &mut Inputs, modal: &Modal) -> Fallible<Action> {
         let border = "---------------------------------------";
         let inner_border = format!("|{}|", &border[1..border.len() - 1]);
-        let back = iter::repeat(" ").take(border.len()).collect::<String>();
+        let back = " ".repeat(border.len());
         let inner_back = format!("|{}|", &back[1..back.len() - 1]);
         let y_start = 5;
         let mut y = y_start;

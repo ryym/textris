@@ -60,9 +60,7 @@ impl Tetromino {
                 Left => [Coord(-1, 1), Coord(0, 1), Coord(1, 1), Coord(1, 0)],
             },
 
-            Tetromino::O => match dir {
-                _ => [Coord(0, 0), Coord(0, 1), Coord(1, 0), Coord(1, 1)],
-            },
+            Tetromino::O => [Coord(0, 0), Coord(0, 1), Coord(1, 0), Coord(1, 1)],
 
             Tetromino::S => match dir {
                 Up | Down => [Coord(0, 0), Coord(1, 0), Coord(0, 1), Coord(-1, 1)],

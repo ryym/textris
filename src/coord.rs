@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Coord(pub i8, pub i8);
 
 impl Coord {
@@ -28,12 +28,6 @@ impl AddAssign for Coord {
     fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0;
         self.1 += rhs.1;
-    }
-}
-
-impl Default for Coord {
-    fn default() -> Self {
-        Coord(0, 0)
     }
 }
 

@@ -10,7 +10,7 @@ version = "0.2.0"
 edition = "2018"
 
 [dependencies]
-failure = "0.1.2"
-getopts = "0.2.18"
-rand = "0.5.4"
-termion = "1.5.1"
+failure = "0.1.8"
+getopts = "0.2.21"
+rand = "0.6.5"
+termion = "1.5.6"

@@ -4,7 +4,8 @@ use crate::coord::{Coord, Dir, Dirs, RotateDir};
 use crate::elapsed::Elapsed;
 use crate::field::Field;
 use crate::tetromino::{Tetromino, Tetrominos, N_TETROS};
-use rand::{thread_rng, Rng, ThreadRng};
+use rand::rngs::ThreadRng;
+use rand::{thread_rng, Rng};
 use std::collections::HashMap;
 
 struct Random<R: Rng> {

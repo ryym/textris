@@ -46,6 +46,7 @@ fn make_help_modal(inputs: &Inputs) -> Modal {
 fn key_name(key: Key) -> String {
     match key {
         Key::Char(chr) => chr.to_string(),
+        Key::Up => "↑".to_string(),
         Key::Left => "←".to_string(),
         Key::Right => "→".to_string(),
         Key::Down => "↓".to_string(),

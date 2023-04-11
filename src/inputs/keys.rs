@@ -22,6 +22,7 @@ impl KeyConverter {
         use super::Order::*;
         match self {
             KeyConverter::Normal => hash_map! {
+                Key::Up => Rotate(RotateDir::Clockwise),
                 Key::Left => Move(Dir::Left),
                 Key::Right => Move(Dir::Right),
                 Key::Down => Move(Dir::Down),
